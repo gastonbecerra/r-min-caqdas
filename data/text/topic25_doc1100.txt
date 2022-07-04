@@ -1,0 +1,10 @@
+IBM mostró su oferta Big Data en Córdoba de la mano de Vates
+
+
+http://infonegocios.info/y-ademas/ibm-mostro-su-oferta-big-data-en-cordoba-de-la-mano-de-vates
+
+
+2016-08-11
+
+
+"el big data hoy se debate en las 3 "v": volumen, velocidad y variedad", señaló christian oviedo, gerente de ingeniería de vates al comienzo del encuentro que presenció infonegocios. se refirió a la posibilidad de procesar en forma económica gran cantidad de información, de forma rápida e incluyendo la mayor variedad de datos. "el 90% de los datos que hoy están en internet se generó hace dos años y el 80% de ellos no está estructurado, circulando en redes", ejemplificó. a su turno, mario barra (foto), presidente de vates, destacó la importancia que tiene big data dentro de los procesos de innovación para vates. hay productos hoy que permiten a un contact center tener información de preferencias de los consumidores en tiempo real mientras realizan un llamado. "pueden ser datos claves a la hora de cerrar una venta", se explicó en el encuentro.diego cozzo, business analytics presale en ibm, presentó las soluciones ibm streams e ibm biginsights. la primera es una plataforma informática que permite a las aplicaciones desarrolladas por usuarios ingerir, analizar y correlacionar información de forma rápida y en tiempo real, a medida que llega procedente de miles de fuentes. ibm biginsights, por su parte, proporciona prestaciones analíticas de datos de gran tamaño en plataformas empresariales. (gl)
