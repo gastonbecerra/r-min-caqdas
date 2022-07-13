@@ -51,6 +51,7 @@ documentos_selector <- sentences2 %>%
 
 # GUI ---------------------------------------------------------------------------
 
+library(tidyverse)
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -75,11 +76,20 @@ ui <- dashboardPage(
           tags$body(HTML("<div id='content1'><p><button onclick='arrancar()'>A darle atomos!</button></p><div id='content2'></div></div>")), 
           height = 150
           )
+      ),
+      fluidRow(
+        box(
+          tags$body(HTML("<div id='content3'></div>")), 
+          height = 150
+          )
       )
 ))
 
 server = function(input, output) {
-  runjs("var state = TRUE;")
+  for (i in 1:length(codes2)) {
+    #runjs(paste0("var x", i ," = TRUE;"))
+  }
+  runjs("var today = new Date(); alert(today);")
   output$text2 <- renderText({ 
     sentences2$oraciones[input$documento %>% devolver_numero_documento()]
   })
@@ -92,12 +102,91 @@ runApp(list(ui = ui, server = server), launch.browser =F)
 # - poner los botones de los codigos programaticamente
 # - cuando se hace click en boton, armar un JSON con los datos de la oración y el codigo
 # - bajar el JSON
+
+
+
+
+
+
+ui <- fluidPage(
+  useShinyjs(),  # Set up shinyjs
+  tags$div(id="code_buttons"),
+  tags$head(
+        includeScript("script.js"),
+        includeCSS("style.css")
+      )  
+)
+server <- function(input, output, session) {
+  runjs( 
+    paste0(
+      "insert_code_buttons( " ,
+      jsonlite::toJSON( list(codes2) ),
+      " );" ))
+}
+
+runApp(list(ui = ui, server = server), launch.browser =F)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # https://shiny.rstudio.com/articles/action-buttons.html
 
+ui <- fluidPage(
+  useShinyjs(),  # Set up shinyjs
+  uiOutput("col"),
+  tags$div(id="content3"),
+  tags$head(
+        includeScript("script.js"),
+        includeCSS("style.css")
+      )  
+)
+server <- function(input, output, session) {
+  col_names <- reactive(codes2)
+  output$col <- renderUI({
+    # map(col_names(), ~ actionButton(.x, codes))
+    map(codes2, ~ actionButton(.x, .x))
+  })
+  output$palette <- renderText({
+    #map_chr(col_names(), ~ input[[.x]] %||% "")
+  })
+  runjs("var today = new Date(); alert(today);")  
+  print(jsonlite::toJSON( codes2 ))
+  runjs( paste0("var cars = ", jsonlite::toJSON( list(codes2) ) , "; poner_botones(cars);" ))  
+}
+
+runApp(list(ui = ui, server = server), launch.browser =F)
 
 
 
 
+
+ 
+ui <- fluidPage(
+  useShinyjs(),  # Set up shinyjs
+  actionButton("btn", "Click me")
+)
+server <- function(input, output) {
+  observeEvent(input$btn, {
+    # Run JS code that simply shows a message
+    runjs("var today = new Date(); alert(today);")
+  })
+}
+runApp(list(ui = ui, server = server), launch.browser =F)
+ 
+ 
 
 
 
