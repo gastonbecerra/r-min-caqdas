@@ -1,8 +1,22 @@
-#content1 {
-  height: 50px;
+#code_document_json_viewer {
+  height: 250px;
+  overflow: scroll;
+  padding: 10px;
+  margin: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  background-color: lightgrey;
+  border: solid 1px black;
 }
 
-#content2 {
-  height: 50px;
-  background-color: aquamarine;
+#documentIndex {
+  /*visibility: hidden;*/
+  color: red;
+}
+
+#documentText {
+  font-size: 15px;
+  padding: 10px;
+  margin: 10px;
+  background-color: antiquewhite;
 }
