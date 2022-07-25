@@ -36,12 +36,6 @@ tokens_codes <- tibble::tibble(
 
 tokens_codes
 
-documentos_selector <- sentences2 %>% 
-  select(-link) %>%
-  mutate(oraciones = utf8::utf8_encode(oraciones)) %>%
-  mutate(oraciones2 = paste(row_number(), " | ", str_sub(oraciones, 1, 50), "..." , sep = " ")) %>%
-  pull(oraciones2) %>%
-  head(100)
 
 
 
@@ -49,36 +43,43 @@ documentos_selector <- sentences2 %>%
 
 library(tidyverse)
 library(shiny)
-library(shinydashboard)
 library(shinyjs)
-library(stringi)
-
-devolver_numero_documento <- function( selector_documento ) {
-  return( sub("\\|.*", "", selector_documento) %>% as.integer(.) )
-}
 
 ui <- fluidPage(
   useShinyjs(),
   tags$head( includeScript("script.js"), includeCSS("style.css") ),
-  titlePanel("GUI for 1-Code-1-Document"),
-  fluidRow(selectInput("documento", "Pick a document:", documentos_selector, width = "100%")),
-  fluidRow(textOutput("documentText")),
-  fluidRow(tags$div(id="front_wrapper")),
-  textOutput("documentIndex")
+  fluidRow(tags$div(id="front_wrapper"))  
 )
 
 server <- function(input, output, session) {
-  output$documentText <- renderText({ 
-    sentences2$oraciones[input$documento %>% devolver_numero_documento()]
-  })
-  output$documentIndex <- renderText({ 
-    input$documento %>% devolver_numero_documento()
-  })
   runjs( 
     paste0(
       "start_front( 
-        codes = " , jsonlite::toJSON( codes2 ), " 
+        codes = " , jsonlite::toJSON( codes2 ), " ,
+        documents = " , jsonlite::toJSON( sentences$sentence ), ", 
+        gui_type = 'Document-x-1-code' 
         );" ))
 }
 
 runApp(list(ui = ui, server = server), launch.browser =F)
+
+
+
+
+# # esto para intentar devolver un valor de js a R session
+# # en ui:
+# fluidRow(textAreaInput("return_json", label = NULL)),
+# singleton(tags$script(HTML('$("#return_json").on("click", function(){
+#     Shiny.onInputChange("buttonClicked", Math.random());
+#   })'
+# ))),
+# # en server:
+# observeEvent(input$buttonClicked, { # así se escuchan eventos
+#   print("json clickeado")
+# })
+# # en js:
+# var return_json = document.getElementById('return_json');
+# return_json.value = JSON.stringify(this.code_document_json)
+# return_json.onclick = function (evt) {
+#   console.log(evt.target.value);
+# }

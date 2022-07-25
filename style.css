@@ -9,14 +9,31 @@
   border: solid 1px black;
 }
 
-#documentIndex {
+#document_index {
   /*visibility: hidden;*/
   color: red;
+  font-size: 15px;
+  padding: 10px;
+  margin: 10px;
+  background-color: greenyellow;
 }
 
-#documentText {
+#document_viewer {
   font-size: 15px;
   padding: 10px;
   margin: 10px;
   background-color: antiquewhite;
 }
+
+.document_navigation_item {
+  padding: 5px;
+  margin: 5px;
+  border: solid 1px black;
+  background-color: lightgrey;
+}
+
+.document_navigation {
+  display: flex;
+  flex-direction: row;
+}
+
