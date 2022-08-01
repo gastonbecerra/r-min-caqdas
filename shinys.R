@@ -65,7 +65,6 @@ runApp(list(ui = ui, server = server), launch.browser =F)
 
 
 
-
 # # esto para intentar devolver un valor de js a R session
 # # en ui:
 # fluidRow(textAreaInput("return_json", label = NULL)),
