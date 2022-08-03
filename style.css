@@ -30,11 +30,18 @@
   margin: 5px;
   border: solid 1px black;
   background-color: lightgrey;
+  height: 30px;
+  overflow: hidden;
 }
 
-.document_navigation {
+.document_active {
+  background-color: lightblue;
+}
+
+#document_navigation {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #download_export_json_button {
@@ -42,4 +49,11 @@
   padding: 10px;
   border: solid 1px black;
   background-color: lightgrey;
+}
+
+#configurations_gui_div {
+  margin: 10px;
+  padding: 10px;
+  border: solid 1px black;
+  background-color: lightpink;
 }

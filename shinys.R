@@ -48,7 +48,15 @@ library(shinyjs)
 ui <- fluidPage(
   useShinyjs(),
   tags$head( includeScript("script.js"), includeCSS("style.css") ),
-  fluidRow(tags$div(id="front_wrapper"))  
+  titlePanel("mincodeR"),
+  sidebarLayout(
+    sidebarPanel(
+      fluidRow(tags$div(id="mcr_gui_sidebar"))
+    ),
+    mainPanel(
+        fluidRow(tags$div(id="mcr_gui_main"))
+    )
+  ),
 )
 
 server <- function(input, output, session) {

@@ -1,5 +1,5 @@
-
 var code_document_json = []
+var configurations_gui = {}
 
 function update_code_document_json(code, document, update_viewer = true) {
   code_document_json.push({
@@ -32,7 +32,7 @@ function insert_document_navigation(document_contents , document_navigation) {
   for (var i = 0; i < document_contents.length; i++) {
     var document_navigation_item = document.createElement('span');
     document_navigation_item.setAttribute('class', 'document_navigation_item');
-    document_navigation_item.innerText = i + ' ' + document_contents[i].substring(0, 15) + '...'; // arma los botones con un cachito de contenido
+    document_navigation_item.innerText = i + '. ' + document_contents[i].substring(0, 50) + '...'; // arma los botones con un cachito de contenido
     document_navigation_item.setAttribute('content_i', i);// guardo el iterador
     document_navigation_item.setAttribute('content_value', document_contents[i]); // guardo el contenido, por las dudas en una propiedad del boton
     document_navigation_item.onclick = function (evt) {
@@ -59,34 +59,52 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   console.log(documents);
 
   /* front markup */
-  var front_wrapper = document.getElementById('front_wrapper');
+  var mcr_gui_main = document.getElementById('mcr_gui_main');
+  var mcr_gui_sidebar = document.getElementById('mcr_gui_sidebar');
 
   /* insert title and documentation for GUI type */
-  var title = document.createElement('h1');
-  title.innerText = gui_type;
-  front_wrapper.appendChild(title);
+  // var title = document.createElement('h1');
+  // title.innerText = gui_type;
+  // mcr_gui_main.appendChild(title);
+
+  /* insert configurations div */
+  var configurations_gui_div = document.createElement('div');
+  configurations_gui_div.setAttribute('id', 'configurations_gui_div');
+  mcr_gui_main.appendChild(configurations_gui_div);
 
   /* insert document navigation */
-  var document_navigation = document.createElement('div');
+  document_navigation = document.createElement('div');
   document_navigation.setAttribute('id', 'document_navigation');
-  front_wrapper.appendChild(document_navigation);
+  mcr_gui_sidebar.appendChild(document_navigation);
   insert_document_navigation(documents , document_navigation);
 
+  /* insert memos div */
+  var memos_div = document.createElement('div');
+  memos_div.setAttribute('id', 'memos_div');
+  mcr_gui_main.appendChild(memos_div);
+  memos_div.textContent = "Memos";
+
+  /* insert document properties div */
+  var document_properties_div = document.createElement('div');
+  document_properties_div.setAttribute('id', 'document_properties_div');
+  mcr_gui_main.appendChild(document_properties_div);
+  document_properties_div.textContent = "Document properties";
+  
   /* insert document viewer */
   var document_viewer = document.createElement('div');
   document_viewer.setAttribute('id', 'document_viewer');
-  front_wrapper.appendChild(document_viewer);
+  mcr_gui_main.appendChild(document_viewer);
 
   /* insert code buttons */
   var buttons_wrapper = document.createElement('div')
   buttons_wrapper.setAttribute('id', 'code_buttons_wrapper');
-  front_wrapper.appendChild(buttons_wrapper);
+  mcr_gui_main.appendChild(buttons_wrapper);
   insert_code_buttons( codes , buttons_wrapper ) 
 
   /* insert code_document_json viewer */
   var code_document_json_viewer = document.createElement('div');
   code_document_json_viewer.setAttribute('id', 'code_document_json_viewer');
-  front_wrapper.appendChild(code_document_json_viewer);
+  mcr_gui_main.appendChild(code_document_json_viewer);
   refresh_code_document_json_viewer();
     
   /* insert export json button to download data*/
@@ -100,10 +118,43 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
     download_export_json_button.href = url;
     download_export_json_button.download = "code_document_json.json";
   }
-  front_wrapper.appendChild(download_export_json_button);
+  mcr_gui_main.appendChild(download_export_json_button);
 }
 
 /* trigger alert on windown close */
 window.onbeforeunload = function(e) {
   return 'Please make sure to save your work before leaving this page.';
 };
+
+/* document selected, toggle class and change color */
+
+$('.document_navigation_item').click(function() {
+  $('.document_navigation_item').removeClass('document_active');
+  /*
+  // get element class document_navigation_item with content_i = i
+  var i = $(this).attr('content_i');
+  var document_active = $('.document_navigation_item[content_i="' + i + '"]');
+  document_active.addClass('document_active');
+  */
+});
+
+
+/* keyloger */
+
+/* GUIs 2do */
+
+// keyboard shortcuts for labels (with configuration button to activate/deactivate)
+
+/*
+document.addEventListener('keyup', function (event) {
+  console.log(event.key);
+});
+document.addEventListener('keyup', function (event) {
+  if (event.ctrlKey && event.key === 'b') {
+      var element = document.getElementById('document_viewer');
+      element.style.display = 'block';
+      element.style.backgroundColor = 'red';
+  }
+});
+*/
+

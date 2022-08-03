@@ -10,10 +10,16 @@ glimpse(json)
 
 # import | organize | explore | connect
 
+# fragmentos
 # Free codes (generate codes without coding)	
 # Open coding (coding while you read the data)	
 # In-vivo coding	
 # Quick coding (code with last used code(s))	
+
+# documentos
+# Free code
+# keyboard shortcuts for labels 
+
 # Merging codes	
 # Grouping codes	
 # Splitting codes	
