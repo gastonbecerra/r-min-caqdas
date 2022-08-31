@@ -2,28 +2,25 @@
 json <- jsonlite::read_json( "C:\\Users\\GASTON\\Desktop\\code_document_json.json" )
 glimpse(json)
 
-
 # xxx
-
 
 # funciones pendientes
 
 # import | organize | explore | connect
 
 # fragmentos
-# Free codes (generate codes without coding)	
-# Open coding (coding while you read the data)	
-# In-vivo coding	
-# Quick coding (code with last used code(s))	
+# In-vivo coding != Free codes ? (generate codes without coding) PROOF-OF-CONCEPT
+# Open coding (coding while you read the data) PROOF-OF-CONCEPT
+# Quick coding (code with last used code(s)) PROOF-OF-CONCEPT	
 
 # documentos
-# Free code
-# keyboard shortcuts for labels 
+# Open coding (coding while you read the data) PROOF-OF-CONCEPT
+# Quick coding (code with last used code(s)) PROOF-OF-CONCEPT	
 
-# Merging codes	
-# Grouping codes	
-# Splitting codes	
-# Code hierarchies	
+# Merging codes
+# Grouping codes
+# Splitting codes
+# Code hierarchies
 # Searching a text for words or expressions and auto coding results	
 # Metadata: User / Inter-coder agreement analysis	
 # Comments for every entity in your project	
@@ -49,3 +46,7 @@ glimpse(json)
 # los mas parecidos:
 # en que se diferencia de QCODERS?
 # en el del chino?
+
+# objetivos
+# 1) GUI para generar una estructura de datos clara y manipulable como resultado de codificacion manual
+# 2) funciones para manejar la estructura de datos (codigos y fragmentos/documentos)

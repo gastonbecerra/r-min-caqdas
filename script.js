@@ -1,11 +1,13 @@
 var code_document_json = []
 var configurations_gui = {}
+var last_used_code = null;
 
 function update_code_document_json(code, document, update_viewer = true) {
   code_document_json.push({
     code: code,
     document: document
   });
+  last_used_code = code;
   if (update_viewer) {
     refresh_code_document_json_viewer();
   }
@@ -88,7 +90,7 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   var document_properties_div = document.createElement('div');
   document_properties_div.setAttribute('id', 'document_properties_div');
   mcr_gui_main.appendChild(document_properties_div);
-  document_properties_div.textContent = "Document properties";
+  document_properties_div.textContent = "Document properties / links for doc navigation";
   
   /* insert document viewer */
   var document_viewer = document.createElement('div');
@@ -99,8 +101,57 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   var buttons_wrapper = document.createElement('div')
   buttons_wrapper.setAttribute('id', 'code_buttons_wrapper');
   mcr_gui_main.appendChild(buttons_wrapper);
-  insert_code_buttons( codes , buttons_wrapper ) 
+  insert_code_buttons( codes , buttons_wrapper );
 
+  /* insert in vivo code button */
+  var in_vivo_code_button = document.createElement('input');
+  in_vivo_code_button.setAttribute('type', 'button');
+  in_vivo_code_button.setAttribute('class', 'btn btn-primary');
+  in_vivo_code_button.value = "In vivo code";
+  in_vivo_code_button.onclick = function (evt) {
+  var documentText = document.getElementById('document_viewer').innerText;
+  if (document.getSelection) {
+    update_code_document_json(
+      code = document.getSelection().toString(),
+      document = documentText);
+      codes.push(document.getSelection().toString());
+      insert_code_buttons( codes , buttons_wrapper );
+  }
+  };
+  buttons_wrapper.appendChild(in_vivo_code_button);
+
+  /* insert open code button */
+  var open_code_button = document.createElement('input');
+  open_code_button.setAttribute('type', 'button');
+  open_code_button.setAttribute('class', 'btn btn-primary');
+  open_code_button.value = "Open code";
+  var documentText = document.getElementById('document_viewer').innerText;
+  open_code_button.onclick = function (evt) {
+    var code = prompt("Please enter your code", "");
+    if (code != null) {
+      update_code_document_json(
+        code = code,
+        document = documentText);
+        codes.push(code);
+        insert_code_buttons( codes , buttons_wrapper );
+    }
+  };
+  buttons_wrapper.appendChild(open_code_button);
+
+  /* insert last used codes button */
+  var last_used_codes_button = document.createElement('input');
+  last_used_codes_button.setAttribute('type', 'button');
+  last_used_codes_button.setAttribute('class', 'btn btn-primary');
+  last_used_codes_button.value = "Last used code";
+  last_used_codes_button.onclick = function (evt) {
+  if (last_used_code != null) {
+    update_code_document_json(
+      code = last_used_code,
+      document = documentText);
+  }
+  };
+  buttons_wrapper.appendChild(last_used_codes_button);
+  
   /* insert code_document_json viewer */
   var code_document_json_viewer = document.createElement('div');
   code_document_json_viewer.setAttribute('id', 'code_document_json_viewer');
@@ -127,7 +178,6 @@ window.onbeforeunload = function(e) {
 };
 
 /* document selected, toggle class and change color */
-
 $('.document_navigation_item').click(function() {
   $('.document_navigation_item').removeClass('document_active');
   /*
@@ -157,4 +207,3 @@ document.addEventListener('keyup', function (event) {
   }
 });
 */
-
