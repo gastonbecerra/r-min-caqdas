@@ -106,7 +106,7 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   /* insert in vivo code button */
   var in_vivo_code_button = document.createElement('input');
   in_vivo_code_button.setAttribute('type', 'button');
-  in_vivo_code_button.setAttribute('class', 'btn btn-primary');
+  in_vivo_code_button.setAttribute('class', 'btn btn-secondary');
   in_vivo_code_button.value = "In vivo code";
   in_vivo_code_button.onclick = function (evt) {
   var documentText = document.getElementById('document_viewer').innerText;
@@ -123,7 +123,7 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   /* insert open code button */
   var open_code_button = document.createElement('input');
   open_code_button.setAttribute('type', 'button');
-  open_code_button.setAttribute('class', 'btn btn-primary');
+  open_code_button.setAttribute('class', 'btn btn-secondary');
   open_code_button.value = "Open code";
   var documentText = document.getElementById('document_viewer').innerText;
   open_code_button.onclick = function (evt) {
@@ -141,7 +141,7 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   /* insert last used codes button */
   var last_used_codes_button = document.createElement('input');
   last_used_codes_button.setAttribute('type', 'button');
-  last_used_codes_button.setAttribute('class', 'btn btn-primary');
+  last_used_codes_button.setAttribute('class', 'btn btn-secondary');
   last_used_codes_button.value = "Last used code";
   last_used_codes_button.onclick = function (evt) {
   if (last_used_code != null) {
