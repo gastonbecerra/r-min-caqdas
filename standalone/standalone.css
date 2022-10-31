@@ -21,13 +21,17 @@
     background-color: lightgrey;
 }
 
-#document_code_navigation {
+#annotate_document > textarea {
+    width: 100%;
+}
+
+#document_code_navigation , #document_code_item_automatics {
     display: flex;
-    flex-direction: row;
+    flex-direction: row;    
     justify-content: center;
 }
 
-.code_item {
+.document_code_item {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
@@ -35,6 +39,16 @@
     height: 30px;
     overflow: hidden;
 }
+
+.document_code_item_automatic {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
+    background-color: lightgrey;
+    height: 30px;
+    overflow: hidden;
+}
+
 
 .selected_item {
     background-color: lightblue !important;

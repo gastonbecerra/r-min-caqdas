@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------------
 
 var output = [];
-var code_by = "document";
 var current_document_i = false; 
 var last_used_code = false;
 var show_monitor = true; //2do: deberia arrancar apagado
@@ -20,6 +19,10 @@ function get_codes() {
         codes.push(output.codes[i]);
     }
     return codes;
+}
+
+function set_new_code( code ) {
+    output.codes.push(code);
 }
 
 function get_documents() {
@@ -107,7 +110,6 @@ function read_input_data( input ) {
 function dump_output() {
     if (!show_monitor) { $("#dump_output").hide(); }
     $("#dump_output").html( 
-        "code_by: " + code_by + "<br>" + 
         "current_document_i: " + current_document_i + "<br>" +
         "last_used_code: " + last_used_code + "<br>" +
         "show_monitor: " + show_monitor + "<br>" +
@@ -171,15 +173,20 @@ function document_annotation_panel() {
             if ( current_document_i ) {
                 if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
             } 
-            document_code_navigation.append( '<div class="code_item ' + code_class + '" code_i="' + i + '">' + 
-                codes[i] + '</div>' );
+            document_code_navigation.append( '<div class="document_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
         }
+
+        annotate_doc_panel.append( '<div id="document_code_item_automatics">' + 
+            '<div class="document_code_item_automatic" code_behaviour="last">Last used code</div>' + 
+            '<div class="document_code_item_automatic" code_behaviour="open">Open coding</div>' +
+            '<div class="document_code_item_automatic" code_behaviour="in vivo">Invivo coding</div>' +
+            '</div>' );
+
         //2do: insert open code button
         //2do: insert in vivo code button
         //2do: insert last used code button
 
-        annotate_doc_panel.append('<p><strong>Include memo to this document</strong></p>');
-        annotate_doc_panel.append('<textarea id="document_memo">' + get_document_memo(current_document_i) + '</textarea>');
+        annotate_doc_panel.append('<textarea id="document_memo" placeholder="Include memos to this document...">' + get_document_memo(current_document_i) + '</textarea>');
 
     }
 }
@@ -201,17 +208,30 @@ $(document).on('click', '.document_navigation_item', function() {
     dump_output();
 });
 
-$(document).on('click', '.code_item', function() {
+$(document).on('click', '.document_code_item', function() {
     if (current_document_i === false) {
         alert('Select a document first');
     } else {
         var code_i = $(this).attr("code_i"); 
-        if (code_by == "document") {
-            set_document_annotations( current_document_i , code = code_i );
-            document_annotation_panel(); 
-        } else {
-            //2do: code by fragment
+        set_document_annotations( current_document_i , code = code_i );
+        last_used_code = code_i;
+        document_annotation_panel(); 
+    }
+    dump_output();
+});
+
+$(document).on('click', '.document_code_item_automatic', function() {
+    if (current_document_i === false) {
+        alert('Select a document first');
+    } else {
+        var code_i = $(this).attr("code_i"); 
+        
+        var code_behaviour = $(this).attr("code_behaviour");
+        if (code_behaviour == "last") { 
+            // set_new_code( last_used_code );
+            set_document_annotations( current_document_i , code = last_used_code ); //2do: esto en el ultimo lo borra --- error
         }
+        document_annotation_panel(); 
     }
     dump_output();
 });
