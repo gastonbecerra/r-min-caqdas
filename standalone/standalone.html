@@ -1,17 +1,49 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    
-    <!-- <script src="standalone.json"></script> -->
+    <link rel="stylesheet" href="standalone.css">
     <script src="standalone.js"></script>
 </head>
 <body>
+    
     <script>
+
+        // inputs
+            // esto se puede armar en R, a partir de codigos y documentos; 
+            // (en r hay que armar los otros 2 elementos que cruzan codigos, framgentos y documentos)
+            
+            var data_from_R = {
+                "documents": [
+                    "document uno el mas piola de todos",
+                    "document dos el mas picante del condado",
+                    "document tres el mas loquito de la cuadra",
+                ],
+                
+                "codes": [
+                    "code-1",
+                    "code-2",
+                    "code-3",
+                ],
+
+                "document_annotations": [
+                ],
+            
+                "fragments_codes": [
+                ]
+            }
+                    
+            //2do: o desde un json anteriormente guardado
+
+        read_input_data(data_from_R);
+
         $(document).ready(function() {
-            read_data();
             start_front();
         });
+
     </script>
+
+    <div id="posta"></div>
+
 </body>

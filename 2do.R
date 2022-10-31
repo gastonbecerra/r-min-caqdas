@@ -8,15 +8,20 @@ glimpse(json)
 
 # import | organize | explore | connect
 
-# fragmentos
+# gui coding -----
+# fragmentos:
 # In-vivo coding != Free codes ? (generate codes without coding) PROOF-OF-CONCEPT
 # Open coding (coding while you read the data) PROOF-OF-CONCEPT
 # Quick coding (code with last used code(s)) PROOF-OF-CONCEPT	
-
-# documentos
+# documentos:
 # Open coding (coding while you read the data) PROOF-OF-CONCEPT
 # Quick coding (code with last used code(s)) PROOF-OF-CONCEPT	
 
+# get_unique_codes
+# get_document_codes
+# get_fragment_codes
+
+# manage codes -----
 # Merging codes
 # Grouping codes
 # Splitting codes
@@ -25,6 +30,20 @@ glimpse(json)
 # Metadata: User / Inter-coder agreement analysis	
 # Comments for every entity in your project	
 # funcion para sumar a un regex --> que aplique un código?
+
+# analyze codes -----
+# Code frequencies
+# Code co-occurrences
+# Code co-occurrences with metadata
+# Code co-occurrences with comments
+
+
+
+
+
+
+# export to REFI-QDA Codebook https://www.qdasoftware.org/
+
 # convertir a red (Linking entities, creating networks, visualizing relationships in the data)
 # report code list, con distintos sorts
 # Export in QDPX format for use in other CAQDAS	

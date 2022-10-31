@@ -30,7 +30,7 @@ function insert_code_buttons(arr , buttons_wrapper) {
   }
 }
 
-function insert_document_navigation(document_contents , document_navigation) {
+function document_navigation(document_contents , document_navigation) {
   for (var i = 0; i < document_contents.length; i++) {
     var document_navigation_item = document.createElement('span');
     document_navigation_item.setAttribute('class', 'document_navigation_item');
@@ -78,7 +78,7 @@ function start_front( codes , documents, gui_type = "document-x-1-code",  ) {
   document_navigation = document.createElement('div');
   document_navigation.setAttribute('id', 'document_navigation');
   mcr_gui_sidebar.appendChild(document_navigation);
-  insert_document_navigation(documents , document_navigation);
+  document_navigation(documents , document_navigation);
 
   /* insert memos div */
   var memos_div = document.createElement('div');
