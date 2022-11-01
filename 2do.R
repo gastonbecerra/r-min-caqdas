@@ -17,6 +17,9 @@ glimpse(json)
 # Open coding (coding while you read the data) PROOF-OF-CONCEPT
 # Quick coding (code with last used code(s)) PROOF-OF-CONCEPT	
 
+# metadata de gui coding
+# gui version, para compatibilizar jsons
+
 # get_unique_codes
 # get_document_codes
 # get_fragment_codes

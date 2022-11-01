@@ -1,73 +1,80 @@
+body {
+    background-color: black;
+}
 
-#documents {
+#title {
+    color: white;
+    font-size: 20px;
+    padding: 5px;
+    margin: 5px;
+}
+
+#documents , #fragments {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-.document_navigation_item {
+.document_navigation_item , .fragment_navigation_item {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
-    background-color: lightgrey;
+    background-color: lightgreen;
     height: 30px;
     overflow: hidden;
+    cursor: pointer;
 }
 
-#annotate_document {
-    padding: 5px;
-    margin: 5px;
-    border: solid 1px black;
-    background-color: lightgrey;
-}
-
-#annotate_document > textarea {
-    width: 100%;
-}
-
-#document_code_navigation , #document_code_item_automatics {
-    display: flex;
-    flex-direction: row;    
-    justify-content: center;
-}
-
-.document_code_item {
-    padding: 5px;
-    margin: 5px;
-    border: solid 1px black;
-    background-color: lightgrey;
-    height: 30px;
-    overflow: hidden;
-}
-
-.document_code_item_automatic {
-    padding: 5px;
-    margin: 5px;
-    border: solid 1px black;
-    background-color: lightgrey;
-    height: 30px;
-    overflow: hidden;
-}
-
-
-.selected_item {
-    background-color: lightblue !important;
-}
-
-#code_settings {
+#annotate_panes {
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
 
-.code_by_toggle {
-    background-color: darkseagreen !important;
+#annotate_document , #annotate_fragment , #documents_panel , #documents_viewer_panel {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
+    background-color: lightgrey;
+}
+
+#annotate_document {
+    width: 33%;
+}
+
+#annotate_fragment {
+    width: 66%;
+}
+
+#annotate_document > textarea , #annotate_fragment > textarea {
+    width: 100%;
+}
+
+#document_code_navigation , #document_code_item_automatics , #fragment_code_navigation , #fragment_code_item_automatics , #fragments_navigation , #create_fragment_navigation {
+    display: flex;
+    flex-direction: row;    
+    justify-content: center;
+}
+
+.document_code_item , .fragment_code_item , #create_fragment_button , .document_code_item_automatic , .fragment_code_item_automatic {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
+    background-color: lightgrey;
+    height: 30px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.selected_item {
+    background-color: lightblue !important;
 }
 
 #document_viewer {
     font-size: 15px;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
     background-color: antiquewhite;
     font-family: 'Courier New', Courier, monospace;
 }
@@ -77,14 +84,18 @@
     margin: 5px;
     border: solid 1px black;
     background-color: lightgrey;
+    cursor: pointer;
 }
 
 #dump {
     font-size: smaller;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
     background-color: rgb(250, 215, 237);
     font-family: 'Courier New', Courier, monospace;
+    max-height: 400px;
+    overflow: auto;
 }
 
 #dump_output {

@@ -1,0 +1,48 @@
+{
+	"documents": [
+		"document uno el mas piola de todos",
+		"document dos el mas picante del condado",
+		"document tres el mas loquito de la cuadra"
+	],
+	"codes": [
+		"code-1",
+		"code-2",
+		"code-3"
+	],
+	"document_annotations": [
+		{
+			"document": 0,
+			"codes": [
+				1
+			],
+			"memo": "",
+			"selected_tokens": [],
+			"codification_date": "2022-11-01T04:53:51.685Z",
+			"codification_user": false
+		},
+		{
+			"document": 2,
+			"codes": [
+				2
+			],
+			"memo": "",
+			"selected_tokens": [],
+			"codification_date": "2022-11-01T04:54:13.424Z",
+			"codification_user": false
+		}
+	],
+	"fragment_annotations": [
+        {
+            "document": 0,
+            "start": 0,
+            "end": 7,
+            "fragment_text": "xxxxxx",
+            "codes": [
+                0
+            ],
+            "memo": "",
+            "codification_date": "2022-11-01T04:53:51.685Z",
+            "codification_user": false
+        }
+    ]
+}
