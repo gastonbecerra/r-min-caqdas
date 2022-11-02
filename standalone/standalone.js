@@ -8,7 +8,8 @@ var output = [];
 var current_document_i = false; 
 var last_used_code = false;
 var last_coded_document_i = false;
-var selected_fragment = false;
+var selected_text = false;
+var current_fragment = false;
 
 var show_monitor = true; //2do: deberia arrancar apagado
 var codification_user = false;  //2do: esto deberia venir de R
@@ -19,7 +20,9 @@ function dump_output() {
         "current_document_i: " + current_document_i + "<br>" +
         "last_used_code: " + last_used_code + "<br>" +
         "last_coded_document_i: " + last_coded_document_i + "<br>" +
-        "selected_fragment: " + selected_fragment + "<br>" +
+        "selected_text: " + selected_text + "<br>" +
+        "current_fragment: " + current_fragment + "<br>" +
+
         "show_monitor: " + show_monitor + "<br>" +
         "codification_user: " + codification_user + "<br>" +
         "<pre>" + JSON.stringify(output, null, '\t') + "</pre>" 
@@ -60,9 +63,6 @@ function get_documents() {
 }
 
 function set_document_annotations( document_i , code_i = false , memo = false , selected_tokens = false ) {
-
-    // console.log("set_document_annotations: " + document_i + " " + code_i + " " + memo + " " + selected_tokens);
-
     document_i = parseInt(document_i);
     var is_new_document = true;
     
@@ -135,36 +135,58 @@ function get_document_memo( document_i ) {
     return memo;
 }
 
-function set_fragment_annotations( document_i, fragment_i = false , fragment_text = false , code_i = false , memo = false ) {
-
-    console.log("set_fragment_annotations: " + document_i + " " + fragment_i + " " + fragment_text + " " + code_i + " " + memo);
-
+function set_fragment( document_i , fragment_text ) {
     document_i = parseInt(document_i);
-    
-    if ( fragment_i === false ) {
-        var is_new_fragment = true;
-        if (code_i) { 
-            code_i = [ parseInt(code_i) ] ; 
-            last_used_code = code_i ; 
-            last_coded_document_i = document_i ; 
-        } else { code_i = []; } 
-        if (memo) {} else { memo = ""; }
-        console.log("aatroden");
-        output.fragment_annotations.push({
-            "document": document_i,
-            "text": fragment_text,
-            "start": null,  //2do: se puede tomar?
-            "end": null,    //2do: se puede tomar?
-            "codes": code_i,
-            "memo": memo,
-            "codification_date": new Date(),
-            "codification_user": codification_user
-        });
+    output.fragment_annotations.push({
+        "document": document_i,
+        "text": fragment_text,
+        "start": null,  //2do: se puede tomar? o llegado el caso se puede ampliar la seleccion programaticamente?
+        "end": null,    //2do: se puede tomar?
+        "codes": [],
+        "memo": "",
+        "codification_date": new Date(),
+        "codification_user": codification_user
+    });
+}
 
-    } else {
-        var is_new_fragment = false;
-
+function delete_fragment( document_i , fragment_text ) {
+    document_i = parseInt(document_i);
+    for (var i = 0; i < output.fragment_annotations.length; i++) {
+        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].text == fragment_text) {
+            output.fragment_annotations.splice(i, 1);
+        }
     }
+}
+
+function set_fragment_annotations( document_i, fragment_text = false , code_i = false , memo = false ) {
+
+    // console.log("set_fragment_annotations: " + document_i + " " + fragment_text + " " + code_i + " " + memo);
+    document_i = parseInt(document_i);
+
+    for (var i = 0; i < output.fragment_annotations.length; i++) {
+        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].text == fragment_text) {
+            
+            if (code_i) {
+                code_i = parseInt(code_i);    
+                if ( output.fragment_annotations[i].codes.indexOf( code_i ) === -1 ) {
+                    output.fragment_annotations[i].codes.push( code_i );
+                    last_used_code = code_i;
+                    last_coded_document_i = document_i;
+                } else {
+                    output.fragment_annotations[i].codes.splice( output.fragment_annotations[i].codes.indexOf( code_i ), 1 );
+                }
+            }
+
+            if (memo) {
+                output.fragment_annotations[i].memo = memo;
+            }
+            
+            output.fragment_annotations[i].codification_date = new Date();
+            output.fragment_annotations[i].codification_user = codification_user; 
+
+        }
+    }
+
     dump_output();
 
 }
@@ -179,14 +201,24 @@ function get_fragments( document_i ) {
     return fragments;
 }
 
-function get_fragment_codes( document_i , fragment ) {
+function get_fragment_codes( document_i , fragment_text ) {
     var fragment_codes = [];
     for (var i = 0; i < output.fragment_annotations.length; i++) {
-        if (output.fragment_annotations[i].document == document_i) {    //2do: falta coincidir por fragmento, ademas de documento
-            fragment_codes.push(output.fragment_annotations[i]);
+        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].text == fragment_text) {
+            fragment_codes.push(output.fragment_annotations[i].codes);
         }
     }
     return fragment_codes;
+}
+
+function get_fragment_memo( document_i , fragment_text ) {
+    var fragment_memo = "";
+    for (var i = 0; i < output.fragment_annotations.length; i++) {
+        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].text == fragment_text) {
+            fragment_memo = output.fragment_annotations[i].memo;
+        }
+    }
+    return fragment_memo;
 }
 
 function read_input_data( input ) {
@@ -212,7 +244,7 @@ function draw_front() {
 
             // insert document navigation
             $("#documents_panel").append( '<div id="documents"></div>' );
-            document_navigation( $("#documents")); 
+            document_navigation(); 
         
         // insert document viewer
         $("#container").append( '<div id="documents_viewer_panel"></div>' );
@@ -232,17 +264,25 @@ function draw_front() {
             // annotate on fragments
             $("#annotate_panes").append( '<div id="annotate_fragment"></div>' );
             fragment_annotation_panel();
-            
+
         // insert dump output
-        $("#container").append( '<div id="dump"><a href="#" id="toggle_dump">[Toggle monitor]</a><br/><div id="dump_output"></div></div>' );
+        $("#container").append( '<div id="dump"></div>' );
+        export_and_dump_panel();
 
         dump_output();
 }  
 
-function document_navigation( document_navigation ) {
+function document_navigation() {
+    var document_panel = $("#documents_panel");
+    document_panel.html(""); // refresh
+
+    document_panel.append('<p><strong>Documment Navigation</strong></p>');
+
     documents = get_documents();
     for (var i = 0; i < documents.length; i++) {
-        document_navigation.append( '<div class="document_navigation_item" document_i="' + i + '">' + 
+        if ( current_document_i && current_document_i == i ) { selected_item = "selected_item_document"; } else { selected_item = ""; }
+
+        document_panel.append( '<div class="document_navigation_item ' + selected_item + ' " document_i="' + i + '">' + 
         documents[i].substring(0, 50) + '...</div>' );
     }
 }
@@ -303,31 +343,41 @@ function fragment_annotation_panel() {
         annotate_fragment_panel.append('<div id="fragments_navigation"></div>');
         var fragments_navigation = $("#fragments_navigation");
         var fragments = get_fragments(current_document_i);
-        for (var i = 0; i < fragments.length; i++) {
-            fragments_navigation.append( '<div class="fragment_navigation_item" fragment_i="' + i + '">' +
-            fragments[i].text.substring(0, 50) + '...</div>' );
+        for (var i = 0; i < fragments.length; i++) {    //2do: al final voy a usar frament_i? o conviene usar un hash?
+            if (current_fragment && fragments[i].text == current_fragment) {
+                var fragment_class = "selected_item_fragment";
+            } else {
+                var fragment_class = "unselected_item";
+            }
+            fragments_navigation.append( '<div class="fragment_navigation_item ' + fragment_class + '" fragment_i="' + i + '" fragment="' + fragments[i].text + '">' +
+            fragments[i].text.substring(0, 25) + 
+            '...</div>' );
         }
 
-        annotate_fragment_panel.append('<div id="fragment_code_navigation"></div>');
+        if (current_fragment === false) {} else {
+            annotate_fragment_panel.append('<div id="delete_fragment_wraper"></div>');
+            var delete_fragment_wraper = $("#delete_fragment_wraper");
+            delete_fragment_wraper.append('<div id="delete_fragment_button">Delete fragment</div>');
+            
+            annotate_fragment_panel.append('<div id="fragment_code_navigation"></div>');
+            var fragment_code_navigation = $("#fragment_code_navigation");
+            
+            codes = get_codes();
+            fragment_codes = get_fragment_codes(current_document_i, current_fragment);
 
-        var fragment_code_navigation = $("#fragment_code_navigation");
+            for (var i = 0; i < codes.length; i++) {
+                if ( fragment_codes[0].indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; } 
+                fragment_code_navigation.append( '<div class="fragment_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
+            }
+    
+            annotate_fragment_panel.append( '<div id="fragment_code_item_automatics">' + 
+                '<div class="fragment_code_item_automatic" code_behaviour="last">Last used code</div>' + 
+                '<div class="fragment_code_item_automatic" code_behaviour="open">Open code</div>' +
+                '<div class="fragment_code_item_automatic" code_behaviour="invivo">Invivo code</div>' +
+                '</div>' );
 
-        codes = get_codes();
-        for (var i = 0; i < codes.length; i++) {
-            if ( current_document_i ) {
-                if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
-            } 
-            fragment_code_navigation.append( '<div class="document_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
+            annotate_fragment_panel.append('<textarea id="fragment_memo" placeholder="Include memos for this fragment...">' + get_fragment_memo( current_document_i, current_fragment ) + '</textarea>');
         }
-
-        annotate_fragment_panel.append( '<div id="fragment_code_item_automatics">' + 
-            '<div class="fragment_code_item_automatic" code_behaviour="last">Last used code</div>' + 
-            '<div class="fragment_code_item_automatic" code_behaviour="open">Open code</div>' +
-            '<div class="fragment_code_item_automatic" code_behaviour="invivo">Invivo code</div>' +
-            '</div>' );
-
-        annotate_fragment_panel.append('<textarea id="document_memo" placeholder="Include memos for this fragment...">' + get_document_memo(current_document_i) + '</textarea>');
-
     }
 }
 
@@ -336,13 +386,22 @@ function view_document_content( document_i ) {
     document_viewer.html( output.documents[document_i] );
 }
 
+function export_and_dump_panel() {
+    var dump_panel = $("#dump");
+    dump_panel.append('<p><strong>Export | Settings | Monitor </strong></p>');
+    dump_panel.append('<div id="export"><a href="#" id="export">[Export]</a></div>');
+    dump_panel.append('<div id="monitor"><a href="#" id="toggle_dump">[Toggle monitor]</a><br/><div id="dump_output"></div></div>');    
+}
+
 // ------------------------------------------------------------------------------------------------------
 // GUI reactions fns
 // ------------------------------------------------------------------------------------------------------
 
 $(document).on('click', '.document_navigation_item', function() {
+    current_fragment = false;
     var document_i = $(this).attr("document_i");
     current_document_i = document_i;
+    document_navigation();
     view_document_content( document_i );
     document_annotation_panel(); 
     fragment_annotation_panel();
@@ -382,10 +441,12 @@ $(document).on('click', '.document_code_item_automatic', function() {
             }        
         }
         if (code_behaviour == "invivo") {   
-            if ( selected_fragment != false && selected_fragment.trim() != "" ) {
-                var code_i = set_new_code( selected_fragment.trim() );
+            if ( selected_text != false && selected_text.trim() != "" ) {
+                var code_i = set_new_code( selected_text.trim() );
                 set_document_annotations( current_document_i , code = code_i );
-                selected_fragment = false;
+                selected_text = false;
+            } else {
+                alert('Select some text first');
             }
 
         }
@@ -395,10 +456,98 @@ $(document).on('click', '.document_code_item_automatic', function() {
     dump_output();
 });
 
+$(document).on('click', '.fragment_code_item_automatic', function() {
+    if (current_fragment === false) {
+        alert('Select a fragment first');
+    } else {
+        var code_i = $(this).attr("code_i"); 
+        
+        var code_behaviour = $(this).attr("code_behaviour");
+        if (code_behaviour == "last") { 
+            if ( last_coded_document_i != current_document_i ) {
+                set_fragment_annotations( current_document_i, current_fragment, code = last_used_code );
+            }
+        }
+        if (code_behaviour == "open") {
+            var code = prompt("Please enter your code", "");
+            if (code != null) {
+                var code_i = set_new_code( code );
+                set_fragment_annotations( current_document_i, current_fragment, code = code_i );
+            }        
+        }
+        if (code_behaviour == "invivo") {   
+            if ( selected_text != false && selected_text.trim() != "" ) {   //2do: invivo deberia repetir el texto seleccionado?
+                var code_i = set_new_code( selected_text.trim() );
+                set_fragment_annotations( current_document_i, current_fragment, code = code_i );
+                selected_text = false;
+            } else {
+                alert('Select some text first');
+            }
+
+        }
+        document_annotation_panel(); 
+        fragment_annotation_panel();
+    }
+    dump_output();
+});
+
+$(document).on('click', '#create_fragment_button', function() {
+    if (selected_text === false) {
+        alert('Select a fragment first by highlighting text in the document viewer');
+    } else {
+        var fragment = selected_text.trim();
+        if (fragment != "") {
+            set_fragment( 
+                document_i = current_document_i,
+                fragment_text = fragment
+            );
+            current_fragment = selected_text;
+            selected_text = false;
+            fragment_annotation_panel(); 
+            dump_output();
+        }
+    }
+});
+
+$(document).on('click', '.fragment_code_item', function() {
+    if (current_fragment === false) {
+        alert('Select a fragment first');
+    } else {
+        var code_i = $(this).attr("code_i"); 
+        set_fragment_annotations( document_i = current_document_i, fragment_text = current_fragment, code_i = code_i ); //2do: se loopea por fragment_i?
+        last_used_code = code_i;    //2do: esto deberia estar dentro de set_document_annotations
+        fragment_annotation_panel();
+    }
+    dump_output();
+});
+
+$(document).on('click', '.fragment_navigation_item', function() {
+    var fragment = $(this).attr("fragment");
+    current_fragment = fragment;
+    fragment_annotation_panel();
+    dump_output();
+});
+
 $(document).on('change', '#document_memo', function() {
     //2do: no anda si borro el texto (limpiar memo)
     var memo = $(this).val();
     set_document_annotations( current_document_i, code = false, memo = memo );
+    dump_output();
+});
+
+$(document).on('change', '#fragment_memo', function() {
+    //2do: no anda si borro el texto (limpiar memo)?
+    var memo = $(this).val();
+    set_fragment_annotations( document_i = current_document_i, fragment_text = current_fragment, code_i = false, memo = memo );
+    dump_output();
+});
+
+$(document).on('click', '#delete_fragment_button', function() {
+    if (current_fragment) {
+        delete_fragment( document_i = current_document_i, fragment_text = current_fragment );
+        current_fragment = false;
+        fragment_annotation_panel();
+    }   
     dump_output();
 });
 
@@ -412,28 +561,19 @@ $(document).on('click', '#toggle_dump', function() {
     dump_output();
 });
 
-$(document).on('click', '#create_fragment_button', function() {
-    if (selected_fragment === false) {
-        alert('Select a fragment first by highlighting text in the document viewer');
-    } else {
-        var fragment = selected_fragment.trim();
-        if (fragment != "") {
-            // set_fragment_annotations( document_i, fragment_i = false , fragment_text = false , code_i = false , memo = false ) {
-            set_fragment_annotations( 
-                document_i = current_document_i,
-                fragment_i = false,
-                fragment_text = fragment
-             );
-
-            fragment_annotation_panel(); 
-        }
-    }
+$(document).on('click', '#export', function() { //2do: es mas o menos por aca
+    var data = JSON.stringify(output);  
+    var blob = new Blob([data], {type: "text/json;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    $("#export").href = url;
+    $("#export").download = "output.json";
 });
+
 
 $(document).on('mouseup', '#document_viewer', function() {
     if (current_document_i === false) {
     } else {
-        selected_fragment = getSelectedText();
+        selected_text = getSelectedText();
         dump_output();
     }
 });
@@ -446,3 +586,7 @@ function getSelectedText() {
     }
     return '';
 }
+
+window.onbeforeunload = function(e) {   // trigger alert on windown close
+//   return 'Please make sure to save your work before leaving this page.';
+};

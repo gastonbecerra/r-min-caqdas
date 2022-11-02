@@ -1,9 +1,9 @@
 body {
-    background-color: black;
+    /* background-color: black; */
 }
 
 #title {
-    color: white;
+    /* color: white; */
     font-size: 20px;
     padding: 5px;
     margin: 5px;
@@ -50,13 +50,17 @@ body {
     width: 100%;
 }
 
-#document_code_navigation , #document_code_item_automatics , #fragment_code_navigation , #fragment_code_item_automatics , #fragments_navigation , #create_fragment_navigation {
+#document_code_navigation , #document_code_item_automatics , #fragment_code_navigation , 
+#fragment_code_item_automatics , #fragments_navigation , #create_fragment_navigation,
+#delete_fragment_wraper {
     display: flex;
     flex-direction: row;    
     justify-content: center;
 }
 
-.document_code_item , .fragment_code_item , #create_fragment_button , .document_code_item_automatic , .fragment_code_item_automatic {
+.document_code_item , .document_code_item_automatic ,
+.fragment_code_item , #create_fragment_button ,  .fragment_code_item_automatic , 
+#delete_fragment_button {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
@@ -66,8 +70,17 @@ body {
     cursor: pointer;
 }
 
+#delete_fragment_button {
+    background-color: rosybrown;
+}
+
 .selected_item {
     background-color: lightblue !important;
+}
+
+.selected_item_fragment , .selected_item_document {
+    font-weight: bold;
+    /* background-color: lightblue !important; */
 }
 
 #document_viewer {
@@ -88,15 +101,16 @@ body {
 }
 
 #dump {
-    font-size: smaller;
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
     background-color: rgb(250, 215, 237);
-    font-family: 'Courier New', Courier, monospace;
-    max-height: 400px;
-    overflow: auto;
 }
 
 #dump_output {
+    font-size: smaller;
+    font-family: 'Courier New', Courier, monospace;
+    max-height: 400px;
+    overflow: auto;
+    text-align: unset;
 }
