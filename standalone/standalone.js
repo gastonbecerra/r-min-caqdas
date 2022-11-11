@@ -13,8 +13,8 @@ var selected_range_end = false;
 var current_fragment = false;
 var current_fragment_id = false;
 
-var show_monitor = true; //2do: deberia arrancar apagado
-var codification_user = false;  //2do: esto deberia venir de R
+var show_monitor = false;
+var codification_user = false;
 
 function dump_output() {
     if (!show_monitor) { $("#dump_output").hide(); }
@@ -190,9 +190,9 @@ function set_fragment_annotations( document_i, fragment_id = false , code_i = fa
 
             if (memo) {
                 output.fragment_annotations[i].memo = memo;
-            }
-            if (memo=="") {
-                output.document_annotations[i].memo = "";
+                if (memo=="") {
+                    output.document_annotations[i].memo = "";
+                }
             }
             
             output.fragment_annotations[i].codification_date = new Date();
@@ -234,15 +234,24 @@ function get_fragment_memo( document_i , fragment_id ) {
     return fragment_memo;
 }
 
-function read_input_data( input ) {
-    output = input;
-}
-
 function clean_selection() {
     selected_text = false;
     selected_range_start = false;    
     selected_range_end = false;
     dump_output();
+}
+
+// ------------------------------------------------------------------------------------------------------
+// GUI drawing fns
+// ------------------------------------------------------------------------------------------------------
+
+function read_input_data( input ) {
+    output = input;
+}
+
+function set_variables( show_monitor = false , codification_user = false ) {
+    var show_monitor = show_monitor;
+    var codification_user = codification_user;
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -431,6 +440,7 @@ $(document).on('click', '.document_navigation_item', function() {
     current_fragment = false;
     var document_i = $(this).attr("document_i");
     current_document_i = document_i;
+    current_fragment_id = false;
     document_navigation();
     view_document_content( document_i );
     document_annotation_panel(); 
@@ -592,14 +602,6 @@ $(document).on('click', '#toggle_dump', function() {
     dump_output();
 });
 
-$(document).on('click', '#export', function() { //2do: es mas o menos por aca
-    var data = JSON.stringify(output);  
-    var blob = new Blob([data], {type: "text/json;charset=utf-8"});
-    var url = URL.createObjectURL(blob);
-    $("#export").href = url;
-    $("#export").download = "output.json";
-});
-
 $(document).on('mouseup', '#document_viewer', function() {
     if (current_document_i === false) {
     } else {
@@ -610,6 +612,27 @@ $(document).on('mouseup', '#document_viewer', function() {
         dump_output();
     }
 });
+
+$(document).on('click', '#export', function() { //2do: es mas o menos por aca
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    var hh = String(today.getHours()).padStart(2, '0');
+    var min = String(today.getMinutes()).padStart(2, '0');
+    var filename = 'mincoder_' + yyyy + mm + dd + hh + min + '.json';
+    exportToJsonFile(output, filename);
+});
+
+function exportToJsonFile(jsonData , filename) {
+    let dataStr = JSON.stringify(jsonData);
+    let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    let exportFileDefaultName = filename;
+    let linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
 
 window.onbeforeunload = function(e) {   // trigger alert on windown close
 //   return 'Please make sure to save your work before leaving this page.';
