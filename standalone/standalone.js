@@ -12,9 +12,10 @@ var selected_range_start = false;
 var selected_range_end = false;
 var current_fragment = false;
 var current_fragment_id = false;
+var changes_since_export = false;   //2do: no lo estoy trackeando
 
 var show_monitor = false;
-var codification_user = false;
+var annotation_user = false;
 
 function dump_output() {
     if (!show_monitor) { $("#dump_output").hide(); }
@@ -28,9 +29,10 @@ function dump_output() {
         "selected_range_end: " + selected_range_end + "<br>" +
         "current_fragment: " + current_fragment + "<br>" +
         "current_fragment_id: " + current_fragment_id + "<br>" +
+        "changes_since_export: " + changes_since_export + "<br>" +
 
         "show_monitor: " + show_monitor + "<br>" +
-        "codification_user: " + codification_user + "<br>" +
+        "annotation_user: " + annotation_user + "<br>" +
         "<pre>" + JSON.stringify(output, null, '\t') + "</pre>" 
      );
 }
@@ -68,37 +70,37 @@ function get_documents() {
     return docs;
 }
 
-function set_document_annotations( document_i , code_i = false , memo = false , selected_tokens = false ) {
+function set_documents_annotations( document_i , code_i = false , memo = false , selected_tokens = false ) {
     document_i = parseInt(document_i);
     var is_new_document = true;
     
-    for (var i = 0; i < output.document_annotations.length; i++) {
-        if (output.document_annotations[i].document == document_i) {
+    for (var i = 0; i < output.documents_annotations.length; i++) {
+        if (output.documents_annotations[i].document == document_i) {
             is_new_document = false;
             
             if (code_i) {
                 code_i = parseInt(code_i);    
-                if ( output.document_annotations[i].codes.indexOf( code_i ) === -1 ) {
-                    output.document_annotations[i].codes.push( code_i );
+                if ( output.documents_annotations[i].codes.indexOf( code_i ) === -1 ) {
+                    output.documents_annotations[i].codes.push( code_i );
                     last_used_code = code_i;
                     last_coded_document_i = document_i;
                 } else {
-                    output.document_annotations[i].codes.splice( output.document_annotations[i].codes.indexOf( code_i ), 1 );
+                    output.documents_annotations[i].codes.splice( output.documents_annotations[i].codes.indexOf( code_i ), 1 );
                 }
             }
             
             if (memo) {
-                output.document_annotations[i].memo = memo;
+                output.documents_annotations[i].memo = memo;
             }
             if (memo=="") {
-                output.document_annotations[i].memo = "";
+                output.documents_annotations[i].memo = "";
             }
             
             if (selected_tokens) {
             }
 
-            output.document_annotations[i].codification_date = new Date();
-            output.document_annotations[i].codification_user = codification_user; 
+            output.documents_annotations[i].annotation_update = new Date();
+            output.documents_annotations[i].annotation_user = annotation_user; 
         }
     }
 
@@ -109,13 +111,13 @@ function set_document_annotations( document_i , code_i = false , memo = false , 
             last_coded_document_i = document_i ; 
         } else { code_i = []; } 
         if (memo) {} else { memo = ""; }
-        output.document_annotations.push({
+        output.documents_annotations.push({
             "document": document_i,
             "codes": code_i,
             "memo": memo,
-            "selected_tokens": [],  //v2
-            "codification_date": new Date(),
-            "codification_user": codification_user,
+            // "selected_tokens": [],  //v2
+            "annotation_update": new Date(),
+            "annotation_user": annotation_user,
         });
     } 
     dump_output();
@@ -124,9 +126,9 @@ function set_document_annotations( document_i , code_i = false , memo = false , 
 function get_document_codes( document_i ) {
     document_i = parseInt(document_i);
     var codes = [];
-    for (var i = 0; i < output.document_annotations.length; i++) {
-        if (output.document_annotations[i].document == document_i) { 
-            codes = output.document_annotations[i].codes;
+    for (var i = 0; i < output.documents_annotations.length; i++) {
+        if (output.documents_annotations[i].document == document_i) { 
+            codes = output.documents_annotations[i].codes;
         }
     }
     return codes;
@@ -135,9 +137,9 @@ function get_document_codes( document_i ) {
 function get_document_memo( document_i ) {
     document_i = parseInt(document_i);
     var memo = "";
-    for (var i = 0; i < output.document_annotations.length; i++) {
-        if (output.document_annotations[i].document == document_i) {
-            memo = output.document_annotations[i].memo;
+    for (var i = 0; i < output.documents_annotations.length; i++) {
+        if (output.documents_annotations[i].document == document_i) {
+            memo = output.documents_annotations[i].memo;
         }
     }
     return memo;
@@ -146,7 +148,7 @@ function get_document_memo( document_i ) {
 function set_fragment( document_i , fragment_text ) {
     document_i = parseInt(document_i);
     var id = idx();
-    output.fragment_annotations.push({
+    output.fragments_annotations.push({
         "id": id,
         "document": document_i,
         "text": fragment_text,
@@ -154,49 +156,49 @@ function set_fragment( document_i , fragment_text ) {
         "end": selected_range_end,
         "codes": [],
         "memo": "",
-        "codification_date": new Date(),
-        "codification_user": codification_user
+        "annotation_update": new Date(),
+        "annotation_user": annotation_user
     });
     return(id);
 }
 
 function delete_fragment( document_i , fragment_text ) {
     document_i = parseInt(document_i);
-    for (var i = 0; i < output.fragment_annotations.length; i++) {
-        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].text == fragment_text) {
-            output.fragment_annotations.splice(i, 1);
+    for (var i = 0; i < output.fragments_annotations.length; i++) {
+        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].text == fragment_text) {
+            output.fragments_annotations.splice(i, 1);
         }
     }
 }
 
-function set_fragment_annotations( document_i, fragment_id = false , code_i = false , memo = false  ) {
+function set_fragments_annotations( document_i, fragment_id = false , code_i = false , memo = false  ) {
 
     document_i = parseInt(document_i);
 
-    for (var i = 0; i < output.fragment_annotations.length; i++) {
-        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].id == fragment_id) {
+    for (var i = 0; i < output.fragments_annotations.length; i++) {
+        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].id == fragment_id) {
            
             if (code_i) {
                 code_i = parseInt(code_i);    
-                if ( output.fragment_annotations[i].codes.indexOf( code_i ) === -1 ) {
-                    output.fragment_annotations[i].codes.push( code_i );
+                if ( output.fragments_annotations[i].codes.indexOf( code_i ) === -1 ) {
+                    output.fragments_annotations[i].codes.push( code_i );
                     last_used_code = code_i;
                     last_coded_document_i = document_i;
                     last_coded_fragment_id = fragment_id;
                 } else {
-                    output.fragment_annotations[i].codes.splice( output.fragment_annotations[i].codes.indexOf( code_i ), 1 );
+                    output.fragments_annotations[i].codes.splice( output.fragments_annotations[i].codes.indexOf( code_i ), 1 );
                 }
             }
 
             if (memo) {
-                output.fragment_annotations[i].memo = memo;
+                output.fragments_annotations[i].memo = memo;
                 if (memo=="") {
-                    output.document_annotations[i].memo = "";
+                    output.documents_annotations[i].memo = "";
                 }
             }
             
-            output.fragment_annotations[i].codification_date = new Date();
-            output.fragment_annotations[i].codification_user = codification_user; 
+            output.fragments_annotations[i].annotation_update = new Date();
+            output.fragments_annotations[i].annotation_user = annotation_user; 
 
         }
     }
@@ -206,9 +208,9 @@ function set_fragment_annotations( document_i, fragment_id = false , code_i = fa
 
 function get_fragments( document_i ) {
     var fragments = [];
-    for (var i = 0; i < output.fragment_annotations.length; i++) {
-        if (output.fragment_annotations[i].document == document_i) {
-            fragments.push(output.fragment_annotations[i]);
+    for (var i = 0; i < output.fragments_annotations.length; i++) {
+        if (output.fragments_annotations[i].document == document_i) {
+            fragments.push(output.fragments_annotations[i]);
         }
     }
     return fragments;
@@ -216,9 +218,9 @@ function get_fragments( document_i ) {
 
 function get_fragment_codes( document_i , fragment_id ) {
     var fragment_codes = [];
-    for (var i = 0; i < output.fragment_annotations.length; i++) {
-        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].id == fragment_id) {
-            fragment_codes.push(output.fragment_annotations[i].codes);
+    for (var i = 0; i < output.fragments_annotations.length; i++) {
+        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].id == fragment_id) {
+            fragment_codes.push(output.fragments_annotations[i].codes);
         }
     }
     return fragment_codes;
@@ -226,9 +228,9 @@ function get_fragment_codes( document_i , fragment_id ) {
 
 function get_fragment_memo( document_i , fragment_id ) {
     var fragment_memo = "";
-    for (var i = 0; i < output.fragment_annotations.length; i++) {
-        if (output.fragment_annotations[i].document == document_i && output.fragment_annotations[i].id == fragment_id) {
-            fragment_memo = output.fragment_annotations[i].memo;
+    for (var i = 0; i < output.fragments_annotations.length; i++) {
+        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].id == fragment_id) {
+            fragment_memo = output.fragments_annotations[i].memo;
         }
     }
     return fragment_memo;
@@ -249,9 +251,9 @@ function read_input_data( input ) {
     output = input;
 }
 
-function set_variables( show_monitor = false , codification_user = false ) {
+function set_variables( show_monitor = false , annotation_user = false ) {
     var show_monitor = show_monitor;
-    var codification_user = codification_user;
+    var annotation_user = annotation_user;
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -343,7 +345,7 @@ function document_annotation_panel() {
         annotate_doc_panel.append( '<div id="document_code_item_automatics">' + 
             '<div class="document_code_item_automatic" code_behaviour="last">Last used code</div>' + 
             '<div class="document_code_item_automatic" code_behaviour="open">Open code</div>' +
-            '<div class="document_code_item_automatic" code_behaviour="invivo">Invivo code</div>' +
+            '<div class="document_code_item_automatic" code_behaviour="quote">Quote code</div>' +
             // '<div class="document_code_item_automatic" style="background-color: red">Select tokens/features</div>' +   //v2
             '</div>' );
 
@@ -411,7 +413,7 @@ function fragment_annotation_panel() {
             annotate_fragment_panel.append( '<div id="fragment_code_item_automatics">' + 
                 '<div class="fragment_code_item_automatic" code_behaviour="last">Last used code</div>' + 
                 '<div class="fragment_code_item_automatic" code_behaviour="open">Open code</div>' +
-                '<div class="fragment_code_item_automatic" code_behaviour="invivo">Invivo code</div>' +
+                '<div class="fragment_code_item_automatic" code_behaviour="quote">Quote code</div>' +
                 '</div>' );
 
             annotate_fragment_panel.append('<textarea id="fragment_memo" placeholder="Include memos for this fragment...">' + 
@@ -427,9 +429,15 @@ function view_document_content( document_i ) {
 
 function export_and_dump_panel() {
     var dump_panel = $("#dump");
-    dump_panel.append('<p><strong>Export | Settings | Monitor </strong></p>');
-    dump_panel.append('<div id="export"><a href="#" id="export">[Export]</a></div>');
-    dump_panel.append('<div id="monitor"><a href="#" id="toggle_dump">[Toggle monitor]</a><br/><div id="dump_output"></div></div>');    
+    dump_panel.append('<p><strong>Export, Settings & Monitor </strong></p>');
+    dump_panel.append('<div id="dump_buttons"></div>');
+    var dump_panel_buttons = $("#dump_buttons");
+    dump_panel_buttons.append('<div id="export" class="export-button">Export JSON</div>');
+    // dump_panel_buttons.append('<div id="export" class="export-button">Export JSON without text</a></div>'); //v2
+    dump_panel_buttons.append('<div id="monitor" class="export-button monitor"><a href="#" id="">Toggle JSON monitor</a></div>');    
+    dump_panel_buttons.append('<div id="import" class="export-button">Import JSON</div>');
+    dump_panel_buttons.append('<input type="file" id="file-input" />');
+    dump_panel.append('<div id="dump_output"></div>');    
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -453,7 +461,7 @@ $(document).on('click', '.document_code_item', function() {
         alert('Select a document first');
     } else {
         var code_i = $(this).attr("code_i"); 
-        set_document_annotations( current_document_i , code = code_i );
+        set_documents_annotations( current_document_i , code = code_i );
         last_used_code = code_i;
         document_annotation_panel(); 
         fragment_annotation_panel();
@@ -470,20 +478,20 @@ $(document).on('click', '.document_code_item_automatic', function() {
         var code_behaviour = $(this).attr("code_behaviour");
         if (code_behaviour == "last") { 
             if ( last_coded_document_i != current_document_i ) {
-                set_document_annotations( current_document_i , code = last_used_code ); 
+                set_documents_annotations( current_document_i , code = last_used_code ); 
             }
         }
         if (code_behaviour == "open") {
             var code = prompt("Please enter your code", "");
             if (code != null) {
                 var code_i = set_new_code( code );
-                set_document_annotations( current_document_i , code = code_i );
+                set_documents_annotations( current_document_i , code = code_i );
             }        
         }
-        if (code_behaviour == "invivo") {   
+        if (code_behaviour == "quote") {   
             if ( selected_text != false && selected_text.trim() != "" ) {
                 var code_i = set_new_code( selected_text.trim() );
-                set_document_annotations( current_document_i , code = code_i );
+                set_documents_annotations( current_document_i , code = code_i );
                 clean_selection();
             } else {
                 alert('Select some text first');
@@ -505,20 +513,20 @@ $(document).on('click', '.fragment_code_item_automatic', function() {
         var code_behaviour = $(this).attr("code_behaviour");
         if (code_behaviour == "last") { 
             if ( last_coded_fragment_id != current_fragment_id ) {
-                set_fragment_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = last_used_code );
+                set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = last_used_code );
             }
         }
         if (code_behaviour == "open") {
             var code = prompt("Please enter your code", "");
             if (code != null) {
                 var code_i = set_new_code( code );
-                set_fragment_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
+                set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
             }        
         }
-        if (code_behaviour == "invivo") {   
+        if (code_behaviour == "quote") {   
             if ( selected_text != false && selected_text.trim() != "" ) { 
                 var code_i = set_new_code( selected_text.trim() );
-                set_fragment_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
+                set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
                 clean_selection();
             } else {
                 alert('Select some text first');
@@ -554,7 +562,7 @@ $(document).on('click', '.fragment_code_item', function() {
         alert('Select a fragment first');
     } else {
         var code_i = $(this).attr("code_i"); 
-        set_fragment_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
+        set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
         last_used_code = code_i;
         fragment_annotation_panel();
     }
@@ -573,13 +581,13 @@ $(document).on('click', '.fragment_navigation_item', function() {
 
 $(document).on('change', '#document_memo', function() {
     var memo = $(this).val();
-    set_document_annotations( current_document_i, code = false, memo = memo );
+    set_documents_annotations( current_document_i, code = false, memo = memo );
     dump_output();
 });
 
 $(document).on('change', '#fragment_memo', function() {
     var memo = $(this).val();
-    set_fragment_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = false, memo = memo );
+    set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = false, memo = memo );
     dump_output();
 });
 
@@ -592,7 +600,7 @@ $(document).on('click', '#delete_fragment_button', function() {
     dump_output();
 });
 
-$(document).on('click', '#toggle_dump', function() {
+$(document).on('click', '#monitor', function() {
     show_monitor = !show_monitor;
     if (show_monitor) {
         $("#dump_output").show();
@@ -613,7 +621,7 @@ $(document).on('mouseup', '#document_viewer', function() {
     }
 });
 
-$(document).on('click', '#export', function() { //2do: es mas o menos por aca
+$(document).on('click', '#export', function() { 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -621,8 +629,30 @@ $(document).on('click', '#export', function() { //2do: es mas o menos por aca
     var hh = String(today.getHours()).padStart(2, '0');
     var min = String(today.getMinutes()).padStart(2, '0');
     var filename = 'mincoder_' + yyyy + mm + dd + hh + min + '.json';
-    exportToJsonFile(output, filename);
+    exportToJsonFile(output, filename); //2do: revisar! lo llama dos veces?
 });
+
+$(document).on('click', '#import', function() { 
+    $('#file-input').click();
+    $('#file-input').change(handleFileSelect);
+});
+
+function handleFileSelect (e) {
+    var files = e.target.files;
+    if (files.length < 1) {
+        alert('select a JSON file...');
+        return;
+    }
+    var file = files[0];
+    var reader = new FileReader();
+    reader.readAsText(file);
+    reader.addEventListener("load", function () {
+        var json = JSON.parse(reader.result);
+
+        output = json;
+    });
+
+}
 
 function exportToJsonFile(jsonData , filename) {
     let dataStr = JSON.stringify(jsonData);

@@ -5,22 +5,22 @@
         "document_text": "",
         "document_memo": "Este documento...",
         "document_selected_tokens": [],        
-        "document_codification_date_time": "2019-01-01",
-        "document_codification_user": "GDB",
+        "document_annotation_update_time": "2019-01-01",
+        "document_annotation_user": "GDB",
         "fragments": [
             {
                 "fragment_text": "la analítica \"inteligente\" de datos se sirve de información complementaria a la tradicional y navega asimismo en datos procedentes de sistemas de geolocalización (de móviles), redes sociales, información sobre salud del usuario de dispositivos \"ponibles\" (pulseras \"inteligentes\", relojes, etc).¿a quien beneficia?. el big data tiene ventajas en todas las áreas de actividad y sectores. es aplicable a la analítica sanitaria, a la predicción de enfermedades, al mantenimiento de instalaciones de energía, detección de posibles fugas o sabotajes, al conocimiento de tendencias de compra, etc. en su evolución han influido los avances informáticos y el desarrollo de ordenadores cada vez más potentes que permiten mayores capacidades de cálculo, requisitos necesarios para investigaciones extremadamente complejas, como en el mundo de la genómica o aeroespacial.la previsión es que la analítica de datos \"inteligente\" refuerce todavía más su papel, dadas las stimaciones de los expertos de aumento de dispositivos móviles y de información en los próximos años.por otra parte, las administraciones públicas de numeroso países se han volcado en facilitar el acceso de los ciudadanos a los datos públicos, suministrados en formatos más homogéneos y fáciles de manejar. su objetivo es impulsar la creación de empresas que puedan dar una nueva utilidad a esa información más allá de la originaria.",
                 "fragment_codes": ["Positivo"],
                 "fragment_memo": "Raro todo...",
-                "fragment_codification_date_time": "2019-01-01",
-                "fragment_codification_user": "GDB"
+                "fragment_annotation_update_time": "2019-01-01",
+                "fragment_annotation_user": "GDB"
             }, 
             {
                 "fragment_text": "la analítica \"inteligente\" de datos se sirve de información complementaria a la tradicional y navega asimismo en datos procedentes de sistemas de geolocalización (de móviles), redes sociales, información sobre salud del usuario de dispositivos \"ponibles\" (pulseras \"inteligentes\", relojes, etc).¿a quien beneficia?. el big data tiene ventajas en todas las áreas de actividad y sectores. es aplicable a la analítica sanitaria, a la predicción de enfermedades, al mantenimiento de instalaciones de energía, detección de posibles fugas o sabotajes, al conocimiento de tendencias de compra, etc. en su evolución han influido los avances informáticos y el desarrollo de ordenadores cada vez más potentes que permiten mayores capacidades de cálculo, requisitos necesarios para investigaciones extremadamente complejas, como en el mundo de la genómica o aeroespacial.la previsión es que la analítica de datos \"inteligente\" refuerce todavía más su papel, dadas las stimaciones de los expertos de aumento de dispositivos móviles y de información en los próximos años.por otra parte, las administraciones públicas de numeroso países se han volcado en facilitar el acceso de los ciudadanos a los datos públicos, suministrados en formatos más homogéneos y fáciles de manejar. su objetivo es impulsar la creación de empresas que puedan dar una nueva utilidad a esa información más allá de la originaria.",
                 "fragment_codes": ["Negativo"],
                 "fragment_memo": "Raro todo...",
-                "fragment_codification_date_time": "2019-01-01",
-                "fragment_codification_user": "GDB"
+                "fragment_annotation_update_time": "2019-01-01",
+                "fragment_annotation_user": "GDB"
             }            
         ]
     }
