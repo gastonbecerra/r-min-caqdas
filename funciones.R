@@ -1,10 +1,59 @@
 library(tidyverse)
 library(jsonlite)
+library(tidytext)
 
-json <- jsonlite::fromJSON(txt = './mincoder_202211121746.json')
-
+json <- jsonlite::fromJSON(txt = './data/mincoder_202211121746.json')
 json$documents
 json$codes
+
+
+# GUI start ----
+
+
+docs <- readtext::readtext("./data/text/*.txt")
+sentences2 <- readr::read_csv(file = './data/csv/oraciones_cortadas_2022.csv')
+sentences2[1:5,"oraciones"]
+
+library(shiny)
+library(shinyjs)
+
+ui <- fluidPage(
+  useShinyjs(),
+  tags$head( 
+        includeScript("mincoder-gui.js"), 
+        includeCSS("mincoder-gui.css"),
+        includeCSS("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css")
+        ),
+  titlePanel("mincodeR"),
+  fluidRow(tags$div(id="posta"))
+)
+
+json_input = list(
+    documents = c(
+        "document uno el mas piola de todos, el mejor de los unos",
+        "document dos el mas picante del condado",
+        "document tres el mas loquito de la cuadra"
+    ),
+    codes = c("code-1", "code-2", "code-3"),
+    documents_annotations = list(),
+    fragments_annotations = list()
+)
+
+server <- function(input, output, session) {
+    runjs(paste0("$(document).ready(function() { 
+            var data_from_R = " , jsonlite::toJSON( json_input ), ";
+            console.log(data_from_R);
+            read_input_data(data_from_R);
+            set_variables( show_monitor = false , annotation_user = 'gaston' );
+            draw_front();
+        });"))
+}
+
+runApp(list(ui = ui, server = server), launch.browser =F)
+
+#sentences2[1:5,"oraciones"] %>% unlist(., use.names = FALSE),
+
+
 
 # info retrieval ----
 
@@ -74,9 +123,27 @@ frag_annotations = get_fragments_annotations(x = json)
 
 
 
+
+# manage jsons -----
+
+# mergin jsons
+merge_jsons <- function( x , y ) {
+    z <- list(
+        documents = x$documents,
+        codes = x$codes,
+        documents_annotations = x$documents_annotations,
+        fragments_annotations = x$fragments_annotations
+    )
+    z$documents_annotations <- c(z$documents_annotations , y$documents_annotations)
+    z$fragments_annotations <- c(z$fragments_annotations , y$fragments_annotations)
+    return(z)
+}
+
+
+
+
 # manage codes -----
-# Merging codes
-# Grouping codes
+# Merging codes (provide a c() of codes to merge into 1)
 # Splitting codes
 # Code hierarchies
 

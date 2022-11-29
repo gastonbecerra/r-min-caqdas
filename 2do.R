@@ -72,3 +72,31 @@ glimpse(json)
 # objetivos
 # 1) GUI para generar una estructura de datos clara y manipulable como resultado de codificacion manual
 # 2) funciones para manejar la estructura de datos (codigos y fragmentos/documentos)
+
+
+
+# otras interfases ---------------------------
+
+# Hacer interfaz ---------
+
+## en html ---------
+## con js ---------
+## interaccion por consola ---------
+
+# interactive()
+# readline(prompt = "Enter any number : ")
+
+# menu( graphics = TRUE, choices = c("Yes", "No"), title="Do you want this?")
+# menu( choices = c("Yes", "No"), title="Do you want this?")
+# askYesNo("Do you want to use askYesNo?")
+
+## interaccion con shiny -------
+
+
+# shiny con js
+
+# https://shiny.rstudio.com/articles/communicating-with-js.html
+# https://unleash-shiny.rinterface.com/survival-kit-javascript.html
+# https://engineering-shiny.org/using-javascript.html#using-javascript
+# https://stackoverflow.com/questions/63882575/sending-javascript-in-shiny
+# https://appsilon.com/super-solutions-for-shiny-architecture-2-javascript-is-your-friend/

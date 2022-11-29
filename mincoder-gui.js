@@ -254,6 +254,7 @@ function read_input_data( input ) {
 function set_variables( show_monitor = false , annotation_user = false ) {
     var show_monitor = show_monitor;
     var annotation_user = annotation_user;
+    alert(annotation_user);
 }
 
 // ------------------------------------------------------------------------------------------------------
