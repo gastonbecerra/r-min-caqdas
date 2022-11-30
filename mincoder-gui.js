@@ -1,4 +1,15 @@
 // ------------------------------------------------------------------------------------------------------
+// PENDIENTES
+// ------------------------------------------------------------------------------------------------------
+
+// 2do: codes to central panel with text input filter; sorted by az and by frequency
+// 2do: switch to apply to document/fragment
+// 2do: show codes as labels below document viewer
+// 2do: show codes as XML tags in document viewer
+// 2do: include CSS for the tags in document viewer
+// 2do: export to XML
+
+// ------------------------------------------------------------------------------------------------------
 // vars and default values
 // ------------------------------------------------------------------------------------------------------
 
@@ -58,6 +69,7 @@ function get_code_i(code) {
 }
 
 function set_new_code( code ) {
+
     output.codes.push(code);
     return( get_code_i(code) );
 }
@@ -308,14 +320,14 @@ function document_navigation() {
     var document_panel = $("#documents_panel");
     document_panel.html(""); // refresh
 
-    document_panel.append('<p><strong>Documment Navigation</strong></p>');
+    document_panel.append('<p><strong>Document Navigation</strong></p>');
 
     documents = get_documents();
     for (var i = 0; i < documents.length; i++) {
         if ( current_document_i && current_document_i == i ) { selected_item = "selected_item_document"; } else { selected_item = ""; }
 
         document_panel.append( '<div class="document_navigation_item ' + selected_item + ' " document_i="' + i + '">' + 
-        documents[i].substring(0, 50) + '...</div>' );
+            documents[i].substring(0, 50) + '...</div>' );
     }
 }
 
@@ -649,8 +661,11 @@ function handleFileSelect (e) {
     reader.readAsText(file);
     reader.addEventListener("load", function () {
         var json = JSON.parse(reader.result);
-
+        console.log(json);
         output = json;
+        // document_navigation_panel();
+        document_navigation();
+        dump_output();
     });
 
 }

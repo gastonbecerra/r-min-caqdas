@@ -1,6 +1,7 @@
 library(tidyverse)
 library(jsonlite)
 library(tidytext)
+library(stringi)
 
 json <- jsonlite::fromJSON(txt = './data/mincoder_202211121746.json')
 json$documents
@@ -9,7 +10,6 @@ json$codes
 
 # GUI start ----
 
-
 docs <- readtext::readtext("./data/text/*.txt")
 sentences2 <- readr::read_csv(file = './data/csv/oraciones_cortadas_2022.csv')
 sentences2[1:5,"oraciones"]
@@ -17,41 +17,64 @@ sentences2[1:5,"oraciones"]
 library(shiny)
 library(shinyjs)
 
-ui <- fluidPage(
-  useShinyjs(),
-  tags$head( 
-        includeScript("mincoder-gui.js"), 
-        includeCSS("mincoder-gui.css"),
-        includeCSS("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css")
-        ),
-  titlePanel("mincodeR"),
-  fluidRow(tags$div(id="posta"))
-)
+start_gui <- function( docs = FALSE, codes = FALSE, show_monitor = FALSE, annotation_user = 'gaston') {
 
-json_input = list(
-    documents = c(
-        "document uno el mas piola de todos, el mejor de los unos",
-        "document dos el mas picante del condado",
-        "document tres el mas loquito de la cuadra"
-    ),
-    codes = c("code-1", "code-2", "code-3"),
-    documents_annotations = list(),
-    fragments_annotations = list()
-)
+    if ( is.character(docs) && is.vector(docs)) {    
+        docs <- gsub("[^A-Za-z0-9 ]","", docs)
+    } else {
+        docs <- vector()
+    }
 
-server <- function(input, output, session) {
-    runjs(paste0("$(document).ready(function() { 
-            var data_from_R = " , jsonlite::toJSON( json_input ), ";
-            console.log(data_from_R);
-            read_input_data(data_from_R);
-            set_variables( show_monitor = false , annotation_user = 'gaston' );
-            draw_front();
-        });"))
+    if ( is.character(codes) && is.vector(codes)) {
+    } else {
+        codes = vector()
+    }
+
+    json_input <- list(
+            documents = docs,
+            codes = codes,
+            documents_annotations = list(),
+            fragments_annotations = list()
+        ) %>% jsonlite::toJSON(.)
+
+    ui <- fluidPage(
+        useShinyjs(),
+        tags$head( 
+                includeScript("mincoder-gui.js"), 
+                includeCSS("mincoder-gui.css"),
+                includeCSS("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css")
+                ),
+        fluidRow(tags$div(id="posta"))
+    )
+    server <- function(input, output, session) {
+        runjs(paste0("$(document).ready(function() { 
+                var data_from_R = " , json_input , ";
+                console.log(data_from_R);
+                read_input_data(data_from_R);
+                set_variables( show_monitor = false , annotation_user = 'gaston' );
+                draw_front();
+            });"))
+    }
+    runApp(list(ui = ui, server = server), launch.browser =F)
 }
 
-runApp(list(ui = ui, server = server), launch.browser =F)
+x <- unlist(sentences2[1:20,"oraciones"] , use.names=FALSE)
 
-#sentences2[1:5,"oraciones"] %>% unlist(., use.names = FALSE),
+start_gui( docs = x )
+start_gui();
+
+
+
+
+#2do: arrancar sin parametros, para tomar desde json
+
+
+
+
+
+
+
+
 
 
 

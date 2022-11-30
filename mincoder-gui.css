@@ -38,6 +38,11 @@ body {
     background-color: lightgrey;
 }
 
+#documents_panel {
+    max-height: 20em;
+    overflow: auto;
+}
+
 #annotate_document {
     width: 33%;
 }
