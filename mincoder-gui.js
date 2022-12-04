@@ -7,7 +7,7 @@
 // 2do: show codes as labels below document viewer
 // 2do: show codes as XML tags in document viewer
 // 2do: include CSS for the tags in document viewer
-// 2do: export to XML
+// 2do: export to XML or https://programminghistorian.org/es/lecciones/introduccion-a-tei-1?s=08#xml-y-tei-hacia-un-est%C3%A1ndar-de-codificaci%C3%B3n-de-textos
 
 // ------------------------------------------------------------------------------------------------------
 // vars and default values

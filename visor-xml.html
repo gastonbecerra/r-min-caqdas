@@ -1,0 +1,175 @@
+<html>
+<head>
+
+    <style>
+        .fragment {
+            /* background-color: pink; */
+            /* border: 1px solid black; */
+            /* display: inline-block; */
+        }
+        character_annotation {
+            /* background-color: aqua; */
+            border-top: solid 1px black;
+            border-bottom: solid 1px black;
+        }
+        .fragment_start {
+            border-left: solid 1px black;
+        }
+        .fragment_end {
+            border-right: solid 1px black;
+        }
+        .code3 {
+            background-color: rgba(55, 0, 0, .5);
+        }
+        .code2 {
+            background-color: rgba(0, 150, 0, .5);
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            var data = {
+                "documents": [
+                    "document uno el mas piola de todos, el mejor de los unos",
+                    "document dos el mas picante del condado",
+                    "document tres el mas loquito de la cuadra"
+                ],
+                "codes": [
+                    "code-1",
+                    "code-2",
+                    "code-3",
+                    "elogios",
+                    "bardo"
+                ],
+                "documents_annotations": [],
+                "fragments_annotations": [
+                    {
+                        "id": "vxi0yr43",
+                        "document": 0,
+                        "text": "el mejor de los unos",
+                        "start": 25,
+                        "end": 50,
+                        "codes": [
+                            3
+                        ],
+                        "memo": "",
+                        "annotation_update": "2022-11-12T20:45:47.581Z",
+                        "annotation_user": "gaston"
+                    },
+                    {
+                        "id": "10p0ir5o",
+                        "document": 0,
+                        "text": "el mas piola de todos",
+                        "start": 13,
+                        "end": 30,
+                        "codes": [
+                            2, 3
+                        ],
+                        "memo": "",
+                        "annotation_update": "2022-11-12T20:45:45.279Z",
+                        "annotation_user": "gaston"
+                    },
+                    {
+                        "id": "10p0ir5x",
+                        "document": 0,
+                        "text": "el mas piola de todos",
+                        "start": 1,
+                        "end": 5,
+                        "codes": [
+                            2
+                        ],
+                        "memo": "",
+                        "annotation_update": "2022-11-12T20:45:45.279Z",
+                        "annotation_user": "gaston"
+                    }
+
+                ]
+            }
+
+            var documents = data.documents;
+            var codes = data.codes;
+            var documents_annotations = data.documents_annotations;
+            var fragments_annotations = data.fragments_annotations;
+            
+            // la joda es:
+            // hay 2 fragmentos en el documento
+            // los fragmentos se solapan o se intersectan 
+            // (uno arranca en el 13-30 y el otro en el 25-50, y se pisan en 13-25)
+            // esto genera:
+            // xxx <code1> xxx <code2> xxx </code1> xxx </code2> xxx
+            // pero esto ya no es html valido, porque los tags se cierran en el orden incorrecto
+            
+            // voy a ir por cada caracter de la frase original
+            // y voy a ir armando un nuevo string, abriendo/cerrando los tags de los codigos
+
+            text = documents[0];
+            character_char = text.split('');
+            character_classes = Array(character_char.length).fill('');
+            character_fragments = Array(character_char.length).fill('');
+
+            for (i = 0; i < character_char.length; i++) {
+                fragments_annotations.forEach(function(item, index) {
+
+                    if ( i >= item.start && i <= item.end ) {
+
+                        character_fragments[i] = item.id ;
+                        character_classes[i] = "";  // clases son codigos + otras cuestiones de estilo
+
+                        if (i == item.start) {
+                            character_classes[i] = character_classes[i] + ' fragment_start' ;
+                        }
+                        if (i == item.end) {
+                            character_classes[i] = character_classes[i] + ' fragment_end' ;
+                        }
+                        
+                        item.codes.forEach(function(code, index) {                           
+                            character_char[i] = '<character_annotation fragments="' + character_fragments[i] + 
+                                '" class="' + character_classes[i] + ' code' + code +
+                                '" class="fragment" >' + 
+                                character_char[i] + '</character_annotation>';
+                        });
+                    } 
+
+                });
+            }
+
+            // finalmente rearmo el string y fiesta
+
+            character_char = character_char.join('');
+            // str3 = str3.join('');
+
+            $("#documento3").html(character_char);
+
+    });
+
+    </script>
+
+</head>
+<body>
+
+    <!-- <div id="documento1"></div>
+    <div id="documento2"></div> -->
+
+    <div>    
+        <!-- <ul>
+            <li>el mas picante del condado</li>
+            <li>"mas picante" 4-15</li>
+            <li>"picante del condado" 8-27</li>
+        </ul> -->
+            
+        <!-- <div>
+            el <code1>mas picante</code1> <code2>del condado</code2> baby
+        </div>
+        <div>
+            el <code1>mas <code2>picante</code1> del condado</code2> baby
+        </div> -->
+    </div>
+
+    <div id="documento3"></div>
+
+
+
+    </div>
+</body>
