@@ -137,12 +137,23 @@ body {
 }
 
 character_annotation {
-    border-top: solid 1px black;
-    border-bottom: solid 1px black;
 }
+
 .fragment_start {
     border-left: solid 1px black;
 }
+
 .fragment_end {
     border-right: solid 1px black;
+}
+
+.fragment {
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+
+}
+
+.selected_fragment{
+    border-bottom: solid 2px black;
+    font-weight: bolder;
 }

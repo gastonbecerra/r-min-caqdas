@@ -3,14 +3,18 @@
 
     <style>
         character_annotation {
-            border-top: solid 1px black;
-            border-bottom: solid 1px black;
+            /* border-top: solid 1px black;
+            border-bottom: solid 1px black; */
         }
         .fragment_start {
             border-left: solid 1px black;
         }
         .fragment_end {
             border-right: solid 1px black;
+        }
+        .fragment {
+            border-top: solid 1px black;
+            border-bottom: solid 1px black;
         }
     </style>
     
@@ -53,9 +57,7 @@
                         "text": "el mas piola de todos",
                         "start": 13,
                         "end": 30,
-                        "codes": [
-                            2, 3
-                        ],
+                        "codes": [],
                         "memo": "",
                         "annotation_update": "2022-11-12T20:45:45.279Z",
                         "annotation_user": "gaston"
@@ -137,7 +139,10 @@
                         if (i == item.end) {
                             character_classes[i] = character_classes[i] + ' fragment_end' ;
                         }
-                        
+
+
+                        /* aca esta el problema, como voy por codigos, la pudro cuando un fragmento no tiene codigos */arguments
+
                         item.codes.forEach(function(code, index) {                           
                             character_char[i] = '<character_annotation fragments="' + character_fragments[i] + 
                                 '" class="fragment ' + character_classes[i] + '" ' +    // borrar estos ultimos 2

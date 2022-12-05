@@ -435,7 +435,7 @@ function fragment_annotation_panel() {
     }
 }
 
-function view_document_content( document_i ) {
+function view_document_content( document_i , current_fragment = false ) {
     var document_viewer = $("#document_viewer");
 
     codes = output.codes;
@@ -476,18 +476,26 @@ function view_document_content( document_i ) {
                 character_classes[i] = "";  // clases son codigos + otras cuestiones de estilo
 
                 if (i == item.start) {
-                    character_classes[i] = character_classes[i] + ' fragment_start' ;
+                    character_classes[i] = character_classes[i] + ' fragment_start ' ;
                 }
                 if (i == item.end) {
-                    character_classes[i] = character_classes[i] + ' fragment_end' ;
+                    character_classes[i] = character_classes[i] + ' fragment_end ' ;
                 }
 
+                if (current_fragment && item.id == current_fragment) {
+                    character_classes[i] = character_classes[i] + ' selected_fragment ' ;
+                }
 
-                
+                character_char[i] = '<character_annotation fragments="' + character_fragments[i] + 
+                '" class="fragment ' + character_classes[i] + '" ' +
+                '" fragment_id="' + item.id + '">' +
+                character_char[i] + '</character_annotation>';
+
                 item.codes.forEach(function(code, index) {                           
                     character_char[i] = '<character_annotation fragments="' + character_fragments[i] + 
-                        '" class="fragment ' + character_classes[i] + '" ' +    // borrar estos ultimos 2
+                        '" class="fragment ' + character_classes[i] + '" ' + 
                         '" code="' + code + '" ' + 
+                        '" fragment_id="' + item.id + '" ' +
                         '" style="background-color:' + codes2[code] + '">' +
                         character_char[i] + '</character_annotation>';
                 });
@@ -652,7 +660,10 @@ $(document).on('click', '.fragment_navigation_item', function() {
     // current_fragment = fragment;
     // selected_range_start = $(this).attr("fragment_start");
     // selected_range_end = $(this).attr("fragment_end");
-    view_document_content( current_document_i );
+
+    // 2do: aca hay que hacer que resaltar el fragmento en el documento
+
+    view_document_content( current_document_i , fragment_id = current_fragment_id );
     fragment_annotation_panel();
     dump_output();
 });
