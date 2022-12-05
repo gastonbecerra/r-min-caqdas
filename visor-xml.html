@@ -2,13 +2,7 @@
 <head>
 
     <style>
-        .fragment {
-            /* background-color: pink; */
-            /* border: 1px solid black; */
-            /* display: inline-block; */
-        }
         character_annotation {
-            /* background-color: aqua; */
             border-top: solid 1px black;
             border-bottom: solid 1px black;
         }
@@ -18,14 +12,8 @@
         .fragment_end {
             border-right: solid 1px black;
         }
-        .code3 {
-            background-color: rgba(55, 0, 0, .5);
-        }
-        .code2 {
-            background-color: rgba(0, 150, 0, .5);
-        }
-
     </style>
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -41,7 +29,8 @@
                     "code-2",
                     "code-3",
                     "elogios",
-                    "bardo"
+                    "bardo",
+                    "quilombo"
                 ],
                 "documents_annotations": [],
                 "fragments_annotations": [
@@ -92,17 +81,42 @@
             var codes = data.codes;
             var documents_annotations = data.documents_annotations;
             var fragments_annotations = data.fragments_annotations;
+
+            /*
+            la joda es:
+            hay 2 fragmentos en el documento
+            los fragmentos se solapan o se intersectan 
+            (uno arranca en el 13-30 y el otro en el 25-50, y se pisan en 13-25)
+            esto genera:
+            xxx <code1> xxx <code2> xxx </code1> xxx </code2> xxx
+            pero esto ya no es html valido, porque los tags se cierran en el orden incorrecto           
+            voy a ir por cada caracter de la frase original
+            y voy a ir armando un nuevo string, abriendo/cerrando los tags de los codigos
+            */
+
+            // array of 10 rbga color with 30% opacity
+            var color_brewer = [
+                "rgba(255, 0, 0, .3)",
+                "rgba(0, 255, 0, .3)",
+                "rgba(0, 0, 255, .3)",
+                "rgba(255, 255, 0, .3)",
+                "rgba(255, 0, 255, .3)",
+                "rgba(0, 255, 255, .3)",
+                "rgba(255, 255, 255, .3)",
+                "rgba(255, 128, 0, .3)",
+                "rgba(255, 0, 128, .3)",
+                "rgba(128, 255, 0, .3)"
+            ];
+            i=0;
+            codes2 = codes.map(function(code, index) {
+                if (i > color_brewer.length) {
+                    i=0;
+                } 
+                i++;
+                return( color_brewer[index])
+            });
+            console.log(codes2);
             
-            // la joda es:
-            // hay 2 fragmentos en el documento
-            // los fragmentos se solapan o se intersectan 
-            // (uno arranca en el 13-30 y el otro en el 25-50, y se pisan en 13-25)
-            // esto genera:
-            // xxx <code1> xxx <code2> xxx </code1> xxx </code2> xxx
-            // pero esto ya no es html valido, porque los tags se cierran en el orden incorrecto
-            
-            // voy a ir por cada caracter de la frase original
-            // y voy a ir armando un nuevo string, abriendo/cerrando los tags de los codigos
 
             text = documents[0];
             character_char = text.split('');
@@ -126,8 +140,9 @@
                         
                         item.codes.forEach(function(code, index) {                           
                             character_char[i] = '<character_annotation fragments="' + character_fragments[i] + 
-                                '" class="' + character_classes[i] + ' code' + code +
-                                '" class="fragment" >' + 
+                                '" class="fragment ' + character_classes[i] + '" ' +    // borrar estos ultimos 2
+                                '" code="' + code + '" ' + 
+                                '" style="background-color:' + codes2[code] + '">' +
                                 character_char[i] + '</character_annotation>';
                         });
                     } 
@@ -139,7 +154,6 @@
 
             character_char = character_char.join('');
             // str3 = str3.join('');
-
             $("#documento3").html(character_char);
 
     });

@@ -437,7 +437,68 @@ function fragment_annotation_panel() {
 
 function view_document_content( document_i ) {
     var document_viewer = $("#document_viewer");
-    document_viewer.html( output.documents[document_i] );
+
+    codes = output.codes;
+    var color_brewer = [
+        "rgba(255, 0, 0, .3)",
+        "rgba(0, 255, 0, .3)",
+        "rgba(0, 0, 255, .3)",
+        "rgba(255, 255, 0, .3)",
+        "rgba(255, 0, 255, .3)",
+        "rgba(0, 255, 255, .3)",
+        "rgba(255, 255, 255, .3)",
+        "rgba(255, 128, 0, .3)",
+        "rgba(255, 0, 128, .3)",
+        "rgba(128, 255, 0, .3)"
+    ];
+
+    var i = 0;
+    codes2 = codes.map(function(code, index) {
+        if (i > color_brewer.length) {
+            i=0;
+        } 
+        i++;
+        return( color_brewer[index])
+    });
+    
+    text = output.documents[document_i];
+    character_char = text.split('');
+    character_classes = Array(character_char.length).fill('');
+    character_fragments = Array(character_char.length).fill('');
+    fragments_annotations = get_fragments(document_i);
+
+    for (i = 0; i < character_char.length; i++) {
+        fragments_annotations.forEach(function(item, index) {
+
+            if ( i >= item.start && i <= item.end ) {
+
+                character_fragments[i] = item.id ;
+                character_classes[i] = "";  // clases son codigos + otras cuestiones de estilo
+
+                if (i == item.start) {
+                    character_classes[i] = character_classes[i] + ' fragment_start' ;
+                }
+                if (i == item.end) {
+                    character_classes[i] = character_classes[i] + ' fragment_end' ;
+                }
+
+
+                
+                item.codes.forEach(function(code, index) {                           
+                    character_char[i] = '<character_annotation fragments="' + character_fragments[i] + 
+                        '" class="fragment ' + character_classes[i] + '" ' +    // borrar estos ultimos 2
+                        '" code="' + code + '" ' + 
+                        '" style="background-color:' + codes2[code] + '">' +
+                        character_char[i] + '</character_annotation>';
+                });
+            } 
+
+        });
+    }
+
+    var document_viewer = $("#document_viewer");
+    document_viewer.html( character_char.join('') );
+
 }
 
 function export_and_dump_panel() {
@@ -546,6 +607,7 @@ $(document).on('click', '.fragment_code_item_automatic', function() {
             }
 
         }
+        view_document_content( current_document_i );
         document_annotation_panel(); 
         fragment_annotation_panel();
     }
@@ -563,6 +625,7 @@ $(document).on('click', '#create_fragment_button', function() {
                 fragment_text = fragment
             );
             current_fragment = selected_text;
+            view_document_content( current_document_i );
             clean_selection();
             fragment_annotation_panel(); 
             dump_output();
@@ -577,6 +640,7 @@ $(document).on('click', '.fragment_code_item', function() {
         var code_i = $(this).attr("code_i"); 
         set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = code_i );
         last_used_code = code_i;
+        view_document_content( current_document_i );
         fragment_annotation_panel();
     }
     dump_output();
@@ -588,6 +652,7 @@ $(document).on('click', '.fragment_navigation_item', function() {
     // current_fragment = fragment;
     // selected_range_start = $(this).attr("fragment_start");
     // selected_range_end = $(this).attr("fragment_end");
+    view_document_content( current_document_i );
     fragment_annotation_panel();
     dump_output();
 });
@@ -628,8 +693,22 @@ $(document).on('mouseup', '#document_viewer', function() {
     } else {
         selected_text = window.getSelection().toString();   // https://developer.mozilla.org/en-US/docs/Web/API/Selection
         var range = window.getSelection().getRangeAt(0);
-        selected_range_start = range.startOffset;   // https://stackoverflow.com/questions/50843340/window-getselection-getrange0-does-not-work-when-text-is-wrapped-by-mark
-        selected_range_end = range.endOffset;
+        var sel_start = range.startOffset;
+        var sel_end = range.endOffset;      
+        var container = $('#document_viewer')[0];
+        var charsBeforeStart = getCharactersCountUntilNode(range.startContainer, container);
+        var charsBeforeEnd = getCharactersCountUntilNode(range.endContainer, container);
+        if(charsBeforeStart < 0 || charsBeforeEnd < 0) {
+          console.warn('out of range');
+          return;
+        }
+        var start_index = charsBeforeStart + sel_start;
+        var end_index = charsBeforeEnd + sel_end -1 ;
+        // console.log('start index', start_index);
+        // console.log('end index', end_index);
+        // console.log(container.textContent.slice(start_index, end_index));
+        selected_range_end = end_index;
+        selected_range_start = start_index;
         dump_output();
     }
 });
@@ -693,3 +772,27 @@ const idx = function() {
       .toString(36)
       .substr(2, 8);
 };
+
+function getCharactersCountUntilNode(node, parent) {
+    // https://stackoverflow.com/questions/50843340/window-getselection-getrange0-does-not-work-when-text-is-wrapped-by-mark
+    var walker = document.createTreeWalker(
+      parent || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    var found = false;
+    var chars = 0;
+    while (walker.nextNode()) {
+      if(walker.currentNode === node) {
+        found = true;
+        break;
+      }
+      chars += walker.currentNode.textContent.length;
+    }
+    if(found) {
+      return chars;
+    }
+    else return -1;
+  }
+  

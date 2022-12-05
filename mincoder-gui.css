@@ -89,7 +89,7 @@ body {
     /* background-color: lightblue !important; */
 }
 
-#document_viewer {
+#document_viewer , #document_viewer2 {
     font-size: 15px;
     padding: 5px;
     margin: 5px;
@@ -134,4 +134,15 @@ body {
 
 #file-input {
     display: none;
+}
+
+character_annotation {
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+}
+.fragment_start {
+    border-left: solid 1px black;
+}
+.fragment_end {
+    border-right: solid 1px black;
 }
