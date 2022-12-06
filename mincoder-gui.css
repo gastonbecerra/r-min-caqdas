@@ -114,7 +114,16 @@ body {
 }
 
 #delete_fragment_button {
-    background-color: rosybrown;
+        padding: 5px;
+    margin: 5px;
+    border: solid 1px red;
+    background-color: white;
+    height: 30px;
+    max-width: 100px;
+    color: red;
+    size: 75%;
+    overflow: hidden;
+    cursor: pointer;
 }
 
 .selected_item {
@@ -205,17 +214,32 @@ character_annotation {
     100% { color: black ; font-weight: bolder; }
 }
 
-#document_memo {
+#document_memo , .fragment_memo {
     padding: 5px;
     margin: 5px;
-    border: solid 1px black;
-    background-color: lightgrey;
+    border: solid 1px gray;
     cursor: pointer;
     transition: width 0.5s linear 0.5s, height 0.5s linear 0.5s;
     width: 250px;
-    height: 40px;
+    height: 30px;
+    overflow: hidden;
+    font-size: 75%;
 }
-#document_memo:hover {
-    width: 500px;
-    height: 500px;
+#document_memo:hover , .fragment_memo:hover {
+    background-color: white;
+    font-size: 100%;
+    width: 400px;
+    height: 400px;    
+    
+    /* 2do: set in the center of the screen */
+    /* position: absolute;
+    z-index: 100;
+    left: 50%;
+    top: 50%; */
+    
+
+}
+
+.fragments_item {
+    padding: 5px;
 }

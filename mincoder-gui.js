@@ -174,10 +174,10 @@ function set_fragment( document_i , fragment_text ) {
     return(id);
 }
 
-function delete_fragment( document_i , fragment_text ) {
-    document_i = parseInt(document_i);
+function delete_fragment( document_i , fragment_id  ) {
+    document_i = parseInt(document_i) ;
     for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].text == fragment_text) {
+        if ((output.fragments_annotations[i].document == document_i) && (output.fragments_annotations[i].id == fragment_id)) {
             output.fragments_annotations.splice(i, 1);
         }
     }
@@ -228,14 +228,16 @@ function get_fragments( document_i ) {
     return fragments;
 }
 
-function get_fragment_codes( document_i , fragment_id ) {
-    var fragment_codes = [];
+function get_fragment_codes( fragment_id ) {
+    
+    // get output.fragments and filter by fragment_id
+    var codes = [];
     for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].id == fragment_id) {
-            fragment_codes.push(output.fragments_annotations[i].codes);
+        if (output.fragments_annotations[i].id == fragment_id) {
+            codes = output.fragments_annotations[i].codes;
         }
     }
-    return fragment_codes;
+    return codes;   
 }
 
 function get_fragment_memo( document_i , fragment_id ) {
@@ -377,19 +379,21 @@ function fragment_annotation_panel() {
         annotate_fragment_panel.show();
         annotate_fragment_panel.html( "" ); // refresh every time
 
-        annotate_fragment_panel.append('<p><strong>Fragment Annotations</strong><span id="create_fragment_button">Create Fragment</span></p>');
+        annotate_fragment_panel.append('<p><strong>Fragment Annotations</strong>' +
+            '<span id="create_fragment_button">Create Fragment</span></p>');
         
         annotate_fragment_panel.append('<div id="fragments_navigation"></div>');
         var fragments_navigation = $("#fragments_navigation");
 
-
-
-
-
-        
         var fragments = get_fragments(current_document_i);
+        // console.log(fragments);
+        
+        codes = get_codes();
 
         for (var i = 0; i < fragments.length; i++) {    
+            
+            fragments_navigation.append( '<div class="fragments_item"></div>') ;
+            var fragments_item = $('#fragments_navigation div.fragments_item:last');         
             
             if (current_fragment_id && fragments[i].id == current_fragment_id ) { 
                 var fragment_class = "selected_item_fragment";
@@ -397,39 +401,25 @@ function fragment_annotation_panel() {
                 var fragment_class = "unselected_item";
             }
 
-            fragments_navigation.append( '<div class="fragments_item"></div>') ;
-            var fragments_item = $('#fragments_navigation div.fragments_item:last');          
-
             fragments_item.append( '<span class="fragment_navigation_item ' + fragment_class + 
                 '" fragment_id="' + fragments[i].id +
                 '" fragment="' + fragments[i].text + '">' +
                 fragments[i].text.substring(0, 25) ) + '... </span>';
-            fragments_item.append('<span id="delete_fragment_button">Delete fragment</span>');
-
-            // fragments_item.append('<div id="fragment_code_navigation"></div>');
-            // var fragment_code_navigation = $("#fragment_code_navigation");
+                
+                fragments_item.append('<span id="delete_fragment_button" fragment_id="' + fragments[i].id +
+                    '">Delete fragment</span>');
             
-            codes = get_codes();
-            fragment_codes = get_fragment_codes(current_document_i, current_fragment_id);
-            if ( codes && fragment_codes && fragment_codes.length > 0 ) {
-                for (var i = 0; i < codes.length; i++) {
-                    if ( fragment_codes[0].indexOf(i) === -1 ) { 
-                    } else { 
-                        console.log(codes[i]);
-                        fragments_item.append( '<span class="fragment_code_item" ' +
-                            ' style="background-color:' + color_code(codes[i]) + '" ' +
-                            ' fragment_code_label" code_i="' + i + '">' + codes[i] + ' (X)</span>' );
-                    } 
-                }
-            }    
+            console.log(fragments[i].id);
+            fragment_codes = get_fragment_codes( fragments[i].id );
+            console.log(fragment_codes);
 
-            if (current_fragment_id === false) {} else { 
-                // fragments_item.append('<span id="delete_fragment_wraper"></span>');
-                // var delete_fragment_wraper = $("#delete_fragment_wraper");
+            for (var j = 0; j < fragment_codes.length; j++) {
+                fragments_item.append( '<span class="fragment_code_item fragment_code_label" code_i="' + fragment_codes[j] + '">' + codes[fragment_codes[j]] + ' (X)</span>' );
             }
-    
-            fragments_item.append('<textarea id="fragment_memo" placeholder="Include memos for this fragment...">' + 
+            
+            fragments_item.append('<textarea class="fragment_memo" placeholder="Include memos for this fragment...">' + 
                 get_fragment_memo( current_document_i, current_fragment_id ) + '</textarea>');
+
         }
     }
     codebook_panel();
@@ -523,6 +513,7 @@ function codebook_panel() {
         for (var i = 0; i < codes.length; i++) {
             if ( current_document_i ) {
                 if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
+                
             } 
             codebook_panel_content.append( '<div class="document_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
         }
@@ -537,7 +528,7 @@ function codebook_panel() {
 
     if ( target_code == "fragment" ) {
         for (var i = 0; i < codes.length; i++) {
-            if ( current_fragment_id ) {
+            if ( current_fragment_id && current_fragment_id ) {
                 if ( get_fragment_codes(current_fragment_id).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
             } 
             codebook_panel_content.append( '<div class="fragment_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
@@ -724,13 +715,14 @@ $(document).on('change', '#fragment_memo', function() {
 });
 
 $(document).on('click', '#delete_fragment_button', function() {
-    if (current_fragment) {
-        delete_fragment( document_i = current_document_i, fragment_text = current_fragment );
-        current_fragment = false;
-        fragment_annotation_panel();
-    }   
+
+    var fragment_id = $(this).attr("fragment_id");
+    delete_fragment( document_i = current_document_i, fragment_id = fragment_id );
+    current_fragment = false;
+    fragment_annotation_panel();
     view_document_content( current_document_i );
     dump_output();
+
 });
 
 $(document).on('click', '#monitor', function() {
