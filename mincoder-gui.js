@@ -5,8 +5,6 @@
 // 2do: codes to central panel with text input filter; sorted by az and by frequency
 // 2do: switch to apply to document/fragment
 // 2do: show codes as labels below document viewer
-// 2do: show codes as XML tags in document viewer
-// 2do: include CSS for the tags in document viewer
 // 2do: export to XML or https://programminghistorian.org/es/lecciones/introduccion-a-tei-1?s=08#xml-y-tei-hacia-un-est%C3%A1ndar-de-codificaci%C3%B3n-de-textos
 
 // ------------------------------------------------------------------------------------------------------
@@ -24,6 +22,7 @@ var selected_range_end = false;
 var current_fragment = false;
 var current_fragment_id = false;
 var changes_since_export = false;   //2do: no lo estoy trackeando
+var target_code = false;
 
 var show_monitor = false;
 var annotation_user = false;
@@ -41,6 +40,7 @@ function dump_output() {
         "current_fragment: " + current_fragment + "<br>" +
         "current_fragment_id: " + current_fragment_id + "<br>" +
         "changes_since_export: " + changes_since_export + "<br>" +
+        "target_code: " + target_code + "<br>" +
 
         "show_monitor: " + show_monitor + "<br>" +
         "annotation_user: " + annotation_user + "<br>" +
@@ -266,7 +266,6 @@ function read_input_data( input ) {
 function set_variables( show_monitor = false , annotation_user = false ) {
     var show_monitor = show_monitor;
     var annotation_user = annotation_user;
-    alert(annotation_user);
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -298,16 +297,21 @@ function draw_front() {
             // insert document viewer
             $("#documents_viewer_panel").append( '<div id="document_viewer">(select a document from the <strong>Document Navigation Panel</strong>)</div>' );
 
+            // annotate on documents
+            $("#documents_viewer_panel").append( '<div id="annotate_document"></div>' );
+            document_annotation_panel(); 
+
         // insert annotation panes
         $("#container").append( '<div id="annotate_panes"></div>' );
 
-            // annotate on documents
-            $("#annotate_panes").append( '<div id="annotate_document"></div>' );
-            document_annotation_panel(); 
 
             // annotate on fragments
             $("#annotate_panes").append( '<div id="annotate_fragment"></div>' );
             fragment_annotation_panel();
+
+        // insert codebook
+        $("#container").append( '<div id="codebook_panel"></div>' );
+        codebook_panel();
 
         // insert dump output
         $("#container").append( '<div id="dump"></div>' );
@@ -342,27 +346,22 @@ function document_annotation_panel() {
         annotate_doc_panel.show();
         annotate_doc_panel.html( "" ); // refresh every time
 
-        annotate_doc_panel.append('<p><strong>Documment Annotations</strong></p>');
-        annotate_doc_panel.append('<div id="document_code_navigation"></div>');
-
-        var document_code_navigation = $("#document_code_navigation");
+        // annotate_doc_panel.append('<p><strong>Documment Annotations</strong></p>');
+        // annotate_doc_panel.append('<div id="document_code_label"></div>');
 
         codes = get_codes();
         for (var i = 0; i < codes.length; i++) {
-            if ( current_document_i ) {
-                if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
-            } 
-            document_code_navigation.append( '<div class="document_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
+
+            if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { 
+                } else {
+                annotate_doc_panel.append( '<div class="document_code_item document_code_label" code_i="' + i + '">' + codes[i] + ' (X)</div>' );
+            }
+
         }
 
-        annotate_doc_panel.append( '<div id="document_code_item_automatics">' + 
-            '<div class="document_code_item_automatic" code_behaviour="last">Last used code</div>' + 
-            '<div class="document_code_item_automatic" code_behaviour="open">Open code</div>' +
-            '<div class="document_code_item_automatic" code_behaviour="quote">Quote code</div>' +
-            // '<div class="document_code_item_automatic" style="background-color: red">Select tokens/features</div>' +   //v2
-            '</div>' );
-
         annotate_doc_panel.append('<textarea id="document_memo" placeholder="Include memos to this document...">' + get_document_memo(current_document_i) + '</textarea>');
+
+        codebook_panel();
 
     }
 }
@@ -378,88 +377,67 @@ function fragment_annotation_panel() {
         annotate_fragment_panel.show();
         annotate_fragment_panel.html( "" ); // refresh every time
 
-        annotate_fragment_panel.append('<p><strong>Fragment Annotations</strong></p>');
-
-        annotate_fragment_panel.append('<div id="create_fragment_navigation"></div>');
-        var create_fragment_navigation = $("#create_fragment_navigation");
-        create_fragment_navigation.append('<div id="create_fragment_button">Create Fragment</div>');
+        annotate_fragment_panel.append('<p><strong>Fragment Annotations</strong><span id="create_fragment_button">Create Fragment</span></p>');
         
         annotate_fragment_panel.append('<div id="fragments_navigation"></div>');
         var fragments_navigation = $("#fragments_navigation");
+
+
+
+
+
         
         var fragments = get_fragments(current_document_i);
 
         for (var i = 0; i < fragments.length; i++) {    
+            
             if (current_fragment_id && fragments[i].id == current_fragment_id ) { 
                 var fragment_class = "selected_item_fragment";
             } else {
                 var fragment_class = "unselected_item";
             }
-            fragments_navigation.append( '<div class="fragment_navigation_item ' + fragment_class + 
+
+            fragments_navigation.append( '<div class="fragments_item"></div>') ;
+            var fragments_item = $('#fragments_navigation div.fragments_item:last');          
+
+            fragments_item.append( '<span class="fragment_navigation_item ' + fragment_class + 
                 '" fragment_id="' + fragments[i].id +
                 '" fragment="' + fragments[i].text + '">' +
-            fragments[i].text.substring(0, 25) + 
-            '...</div>' );
-        }
+                fragments[i].text.substring(0, 25) ) + '... </span>';
+            fragments_item.append('<span id="delete_fragment_button">Delete fragment</span>');
 
-        if (current_fragment_id === false) {} else { 
-            annotate_fragment_panel.append('<div id="delete_fragment_wraper"></div>');
-            var delete_fragment_wraper = $("#delete_fragment_wraper");
-            delete_fragment_wraper.append('<div id="delete_fragment_button">Delete fragment</div>');
-            
-            annotate_fragment_panel.append('<div id="fragment_code_navigation"></div>');
-            var fragment_code_navigation = $("#fragment_code_navigation");
+            // fragments_item.append('<div id="fragment_code_navigation"></div>');
+            // var fragment_code_navigation = $("#fragment_code_navigation");
             
             codes = get_codes();
             fragment_codes = get_fragment_codes(current_document_i, current_fragment_id);
             if ( codes && fragment_codes && fragment_codes.length > 0 ) {
                 for (var i = 0; i < codes.length; i++) {
                     if ( fragment_codes[0].indexOf(i) === -1 ) { 
-                        var code_class = "unselected_item"; 
                     } else { 
-                        var code_class = "selected_item"; 
+                        console.log(codes[i]);
+                        fragments_item.append( '<span class="fragment_code_item" ' +
+                            ' style="background-color:' + color_code(codes[i]) + '" ' +
+                            ' fragment_code_label" code_i="' + i + '">' + codes[i] + ' (X)</span>' );
                     } 
-                    fragment_code_navigation.append( '<div class="fragment_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
                 }
+            }    
+
+            if (current_fragment_id === false) {} else { 
+                // fragments_item.append('<span id="delete_fragment_wraper"></span>');
+                // var delete_fragment_wraper = $("#delete_fragment_wraper");
             }
     
-            annotate_fragment_panel.append( '<div id="fragment_code_item_automatics">' + 
-                '<div class="fragment_code_item_automatic" code_behaviour="last">Last used code</div>' + 
-                '<div class="fragment_code_item_automatic" code_behaviour="open">Open code</div>' +
-                '<div class="fragment_code_item_automatic" code_behaviour="quote">Quote code</div>' +
-                '</div>' );
-
-            annotate_fragment_panel.append('<textarea id="fragment_memo" placeholder="Include memos for this fragment...">' + 
+            fragments_item.append('<textarea id="fragment_memo" placeholder="Include memos for this fragment...">' + 
                 get_fragment_memo( current_document_i, current_fragment_id ) + '</textarea>');
         }
     }
+    codebook_panel();
+
 }
 
 function view_document_content( document_i , current_fragment = false ) {
     var document_viewer = $("#document_viewer");
-
-    codes = output.codes;
-    var color_brewer = [
-        "rgba(255, 0, 0, .3)",
-        "rgba(0, 255, 0, .3)",
-        "rgba(0, 0, 255, .3)",
-        "rgba(255, 255, 0, .3)",
-        "rgba(255, 0, 255, .3)",
-        "rgba(0, 255, 255, .3)",
-        "rgba(255, 255, 255, .3)",
-        "rgba(255, 128, 0, .3)",
-        "rgba(255, 0, 128, .3)",
-        "rgba(128, 255, 0, .3)"
-    ];
-
-    var i = 0;
-    codes2 = codes.map(function(code, index) {
-        if (i > color_brewer.length) {
-            i=0;
-        } 
-        i++;
-        return( color_brewer[index])
-    });
     
     text = output.documents[document_i];
     character_char = text.split('');
@@ -496,7 +474,7 @@ function view_document_content( document_i , current_fragment = false ) {
                         '" class="fragment ' + character_classes[i] + '" ' + 
                         '" code="' + code + '" ' + 
                         '" fragment_id="' + item.id + '" ' +
-                        '" style="background-color:' + codes2[code] + '">' +
+                        '" style="background-color:' + color_code(code) + '">' +
                         character_char[i] + '</character_annotation>';
                 });
             } 
@@ -506,6 +484,70 @@ function view_document_content( document_i , current_fragment = false ) {
 
     var document_viewer = $("#document_viewer");
     document_viewer.html( character_char.join('') );
+
+}
+
+function codebook_panel() {
+    var codebook_panel = $("#codebook_panel");
+    codebook_panel.html('');
+    codebook_panel.append('<div id="codebook_panel_header">Codebook</div>');
+    codebook_panel.append('<div id="codebook_panel_content"></div>');
+    var codebook_panel_content = $("#codebook_panel_content");
+
+    // codebook_panel_content.append('<div id="codebook_panel_filter_clear">Add code to <strong>document | fragment | new fragment</strong></div>');
+
+    // var target_code = false;
+    //  target code == select case 
+        
+    if (( !current_fragment ) && ( current_document_i )) {
+        target_code = "document";
+    }
+    if ( current_fragment_id !== false) {
+        target_code = "fragment";
+    }
+    // 2do: falta cuando hay selected text (new fragment)
+    dump_output();
+
+    codebook_panel_content.append('<div id="codebook_panel_filter_clear">Add code to <strong>' + target_code + '</strong></div>');
+
+    codes = get_codes();
+
+    // filter codes via text input
+    // codebook_panel_content.append('<input type="text" id="codebook_panel_filter" placeholder="Filter codes...">');
+    // codebook_panel_content.append('<div id="codebook_panel_filter_clear">Clear</div>');
+
+    codes = get_codes();
+
+    if ( target_code == "document" ) {
+
+        for (var i = 0; i < codes.length; i++) {
+            if ( current_document_i ) {
+                if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
+            } 
+            codebook_panel_content.append( '<div class="document_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
+        }
+
+        codebook_panel_content.append( '<div id="document_code_item_automatics">' + 
+            '<div class="document_code_item_automatic" code_behaviour="last">Last used code</div>' + 
+            '<div class="document_code_item_automatic" code_behaviour="open">Open code</div>' +
+            '<div class="document_code_item_automatic" code_behaviour="quote">Quote code</div>' +
+            // '<div class="document_code_item_automatic" style="background-color: red">Select tokens/features</div>' +   //v2
+            '</div>' );
+    }
+
+    if ( target_code == "fragment" ) {
+        for (var i = 0; i < codes.length; i++) {
+            if ( current_fragment_id ) {
+                if ( get_fragment_codes(current_fragment_id).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
+            } 
+            codebook_panel_content.append( '<div class="fragment_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
+        }
+        codebook_panel_content.append( '<div id="fragment_code_item_automatics">' + 
+            '<div class="fragment_code_item_automatic" code_behaviour="last">Last used code</div>' + 
+            '<div class="fragment_code_item_automatic" code_behaviour="open">Open code</div>' +
+            '<div class="fragment_code_item_automatic" code_behaviour="quote">Quote code</div>' +
+            '</div>' );
+    }
 
 }
 
@@ -547,6 +589,7 @@ $(document).on('click', '.document_code_item', function() {
         last_used_code = code_i;
         document_annotation_panel(); 
         fragment_annotation_panel();
+        codebook_panel();
     }
     dump_output();
 });
@@ -615,7 +658,7 @@ $(document).on('click', '.fragment_code_item_automatic', function() {
             }
 
         }
-        view_document_content( current_document_i );
+        view_document_content( current_document_i , current_fragment_id );
         document_annotation_panel(); 
         fragment_annotation_panel();
     }
@@ -633,7 +676,7 @@ $(document).on('click', '#create_fragment_button', function() {
                 fragment_text = fragment
             );
             current_fragment = selected_text;
-            view_document_content( current_document_i );
+            view_document_content( current_document_i , current_fragment_id );
             clean_selection();
             fragment_annotation_panel(); 
             dump_output();
@@ -656,12 +699,12 @@ $(document).on('click', '.fragment_code_item', function() {
 
 $(document).on('click', '.fragment_navigation_item', function() {
     var fragment = $(this).attr("fragment");
-    current_fragment_id = $(this).attr("fragment_id");
-    // current_fragment = fragment;
-    // selected_range_start = $(this).attr("fragment_start");
-    // selected_range_end = $(this).attr("fragment_end");
-
-    // 2do: aca hay que hacer que resaltar el fragmento en el documento
+    
+    if ( current_fragment_id ==  $(this).attr("fragment_id") ) {
+        current_fragment_id = false;
+    } else {
+        current_fragment_id = $(this).attr("fragment_id");
+    }
 
     view_document_content( current_document_i , fragment_id = current_fragment_id );
     fragment_annotation_panel();
@@ -686,6 +729,7 @@ $(document).on('click', '#delete_fragment_button', function() {
         current_fragment = false;
         fragment_annotation_panel();
     }   
+    view_document_content( current_document_i );
     dump_output();
 });
 
@@ -740,6 +784,40 @@ $(document).on('click', '#import', function() {
     $('#file-input').change(handleFileSelect);
 });
 
+
+// ------------------------------------------------------------------------------------------------------
+// aux fns
+// ------------------------------------------------------------------------------------------------------
+
+const idx = function() {
+    return Math.random()
+      .toString(36)
+      .substr(2, 8);
+};
+
+function getCharactersCountUntilNode(node, parent) {
+    // https://stackoverflow.com/questions/50843340/window-getselection-getrange0-does-not-work-when-text-is-wrapped-by-mark
+    var walker = document.createTreeWalker(
+      parent || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    var found = false;
+    var chars = 0;
+    while (walker.nextNode()) {
+      if(walker.currentNode === node) {
+        found = true;
+        break;
+      }
+      chars += walker.currentNode.textContent.length;
+    }
+    if(found) {
+      return chars;
+    }
+    else return -1;
+}
+  
 function handleFileSelect (e) {
     var files = e.target.files;
     if (files.length < 1) {
@@ -774,36 +852,29 @@ window.onbeforeunload = function(e) {   // trigger alert on windown close
 //   return 'Please make sure to save your work before leaving this page.';
 };
 
-// ------------------------------------------------------------------------------------------------------
-// aux fns
-// ------------------------------------------------------------------------------------------------------
+function color_code( code ) {
+    codes = output.codes;
+    var color_brewer = [
+        "rgba(255, 0, 0, .3)",
+        "rgba(0, 255, 0, .3)",
+        "rgba(0, 0, 255, .3)",
+        "rgba(255, 255, 0, .3)",
+        "rgba(255, 0, 255, .3)",
+        "rgba(0, 255, 255, .3)",
+        "rgba(255, 255, 255, .3)",
+        "rgba(255, 128, 0, .3)",
+        "rgba(255, 0, 128, .3)",
+        "rgba(128, 255, 0, .3)"
+    ];
 
-const idx = function() {
-    return Math.random()
-      .toString(36)
-      .substr(2, 8);
-};
-
-function getCharactersCountUntilNode(node, parent) {
-    // https://stackoverflow.com/questions/50843340/window-getselection-getrange0-does-not-work-when-text-is-wrapped-by-mark
-    var walker = document.createTreeWalker(
-      parent || document.body,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-    var found = false;
-    var chars = 0;
-    while (walker.nextNode()) {
-      if(walker.currentNode === node) {
-        found = true;
-        break;
-      }
-      chars += walker.currentNode.textContent.length;
-    }
-    if(found) {
-      return chars;
-    }
-    else return -1;
-  }
-  
+    var i = 0;
+    codes2 = codes.map(function(code, index) {
+        if (i > color_brewer.length) {
+            i=0;
+        } 
+        i++;
+        return( color_brewer[index])
+    });
+    //console.log(code);
+    return codes2[code];
+}

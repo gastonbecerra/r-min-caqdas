@@ -19,8 +19,9 @@ body {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
-    background-color: lightgreen;
+    background-color: white;
     height: 30px;
+    width: 300px;
     overflow: hidden;
     cursor: pointer;
 }
@@ -31,7 +32,7 @@ body {
     justify-content: center;
 }
 
-#annotate_document , #annotate_fragment , #documents_panel , #documents_viewer_panel {
+#annotate_fragment , #documents_panel , #documents_viewer_panel {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
@@ -44,34 +45,70 @@ body {
 }
 
 #annotate_document {
-    width: 33%;
+    width: 99%;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
 }
 
 #annotate_fragment {
-    width: 66%;
-}
-
-#annotate_document > textarea , #annotate_fragment > textarea {
     width: 100%;
 }
 
+#annotate_document > textarea , #annotate_fragment > textarea {
+    /* width: 100%; */
+}
+
 #document_code_navigation , #document_code_item_automatics , #fragment_code_navigation , 
-#fragment_code_item_automatics , #fragments_navigation , #create_fragment_navigation,
+#fragment_code_item_automatics , #create_fragment_navigation,
 #delete_fragment_wraper {
     display: flex;
     flex-direction: row;    
     justify-content: center;
 }
 
+#fragments_navigation {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+}
+
 .document_code_item , .document_code_item_automatic ,
 .fragment_code_item , #create_fragment_button ,  .fragment_code_item_automatic , 
 .export-button, 
 #delete_fragment_button {
+    /*
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
     background-color: lightgrey;
     height: 30px;
+    overflow: hidden;
+    cursor: pointer;
+    */
+}
+
+#create_fragment_button {
+    padding: 5px;
+    margin: 10px;
+    border: solid 1px green;
+    background-color: white;
+    height: 30px;
+    max-width: 200px;
+    color: green;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.document_code_label {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px red;
+    background-color: white;
+    height: 30px;
+    max-width: 100px;
+    color: red;
+    size: 75%;
     overflow: hidden;
     cursor: pointer;
 }
@@ -94,7 +131,7 @@ body {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
-    background-color: antiquewhite;
+    background-color: white;
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -140,20 +177,45 @@ character_annotation {
 }
 
 .fragment_start {
-    border-left: solid 1px black;
+    border-left: solid 1px gray;
 }
 
 .fragment_end {
-    border-right: solid 1px black;
+    border-right: solid 1px gray;
 }
 
 .fragment {
-    border-top: solid 1px black;
-    border-bottom: solid 1px black;
-
+    border-top: solid 1px gray;
+    border-bottom: solid 1px gray;
 }
 
 .selected_fragment{
-    border-bottom: solid 2px black;
+    border-bottom: solid 3px black;
     font-weight: bolder;
+    -webkit-animation: target-fade 3s 1;
+    -moz-animation: target-fade 3s 1;
+}
+
+@-webkit-keyframes target-fade {    
+    0% { color: red ; font-weight: normal; }
+    100% { color: black ; font-weight: bolder; }
+}
+@-moz-keyframes target-fade {
+    0% { color: red ; font-weight: normal; }
+    100% { color: black ; font-weight: bolder; }
+}
+
+#document_memo {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
+    background-color: lightgrey;
+    cursor: pointer;
+    transition: width 0.5s linear 0.5s, height 0.5s linear 0.5s;
+    width: 250px;
+    height: 40px;
+}
+#document_memo:hover {
+    width: 500px;
+    height: 500px;
 }
