@@ -292,3 +292,9 @@ character_annotation {
 .selected_item_document {
     background-color: antiquewhite !important;
 }
+
+#codebook_code_list{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
