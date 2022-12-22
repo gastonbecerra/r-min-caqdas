@@ -1,11 +1,9 @@
 // ------------------------------------------------------------------------------------------------------
-// PENDIENTES
+// PENDIENTES GUI
 // ------------------------------------------------------------------------------------------------------
 
-// 2do: codes to central panel with text input filter; sorted by az and by frequency
-// 2do: switch to apply to document/fragment
-// 2do: show codes as labels below document viewer
-// 2do: export to XML or https://programminghistorian.org/es/lecciones/introduccion-a-tei-1?s=08#xml-y-tei-hacia-un-est%C3%A1ndar-de-codificaci%C3%B3n-de-textos
+// todo marcha bien, millhouse!
+
 
 // ------------------------------------------------------------------------------------------------------
 // vars and default values
@@ -23,6 +21,8 @@ var current_fragment = false;
 var current_fragment_id = false;
 var changes_since_export = false;   //2do: no lo estoy trackeando
 var target_code = false;
+var code_sort_by = false;
+var code_filter_by = '';
 
 var show_monitor = false;
 var annotation_user = false;
@@ -41,6 +41,8 @@ function dump_output() {
         "current_fragment_id: " + current_fragment_id + "<br>" +
         "changes_since_export: " + changes_since_export + "<br>" +
         "target_code: " + target_code + "<br>" +
+        "code_sort_by: " + code_sort_by + "<br>" +
+        "code_filter_by: " + code_filter_by + "<br>" +
 
         "show_monitor: " + show_monitor + "<br>" +
         "annotation_user: " + annotation_user + "<br>" +
@@ -48,9 +50,11 @@ function dump_output() {
      );
 }
 
+
 // ------------------------------------------------------------------------------------------------------
 // data handling fns
 // ------------------------------------------------------------------------------------------------------
+
 
 function get_codes() {
     var codes = [];
@@ -58,6 +62,67 @@ function get_codes() {
         codes.push(output.codes[i]);
     }
     return codes;
+}
+
+function get_codes_list() {
+    
+    var code_list = [];
+    var codes = [];
+    codes = get_codes();
+
+    for (var i = 0; i < codes.length; i++) {
+        
+        let code = {
+            i: i,
+            code: codes[i],
+            document_freq: 0,
+            fragment_freq: 0,
+            total_freq: 0,
+            code_stat: false
+        }
+        
+        for (var j = 0; j < output.documents_annotations.length; j++) {    
+            if ( output.documents_annotations[j].codes.indexOf(i) !== -1 ) {
+                code.document_freq++;
+            }
+        }
+
+        for (var j = 0; j < output.fragments_annotations.length; j++) {
+            if ( output.fragments_annotations[j].codes.indexOf(i) !== -1 ) {
+                code.fragment_freq++;
+            }
+        }
+        
+        code.total_freq = code.document_freq + code.fragment_freq;
+        code.code_stat = code.code + ' (d' + code.document_freq + ' f' + code.fragment_freq + ')';
+        code_list.push(code);
+    }
+
+    if (code_filter_by !== false) {
+        code_list = code_list.filter( code => code.code.toLowerCase().indexOf(code_filter_by.toLowerCase()) !== -1 );
+    }
+       
+    if (code_sort_by == 'az') {
+        code_list.sort(function(a, b) {
+            var nameA = a.code.toUpperCase(); // ignore upper and lowercase
+            var nameB = b.code.toUpperCase(); // ignore upper and lowercase
+            if (nameA < nameB) {    return -1;  }
+            if (nameA > nameB) {    return 1;   }
+            return 0;   // names must be equal          
+        });
+    }
+
+    if (code_sort_by == 'freq') {
+        code_list.sort(function(a, b) {
+            var nameA = a.total_freq; // ignore upper and lowercase
+            var nameB = b.total_freq; // ignore upper and lowercase
+            if (nameA < nameB) {    return 1;  }
+            if (nameA > nameB) {    return -1;   }
+            return 0;   // names must be equal
+        });
+    }
+    
+    return code_list;
 }
 
 function get_code_i(code) {
@@ -257,9 +322,11 @@ function clean_selection() {
     dump_output();
 }
 
+
 // ------------------------------------------------------------------------------------------------------
 // GUI drawing fns
 // ------------------------------------------------------------------------------------------------------
+
 
 function read_input_data( input ) {
     output = input;
@@ -270,9 +337,11 @@ function set_variables( show_monitor = false , annotation_user = false ) {
     var annotation_user = annotation_user;
 }
 
+
 // ------------------------------------------------------------------------------------------------------
 // GUI drawing fns
 // ------------------------------------------------------------------------------------------------------
+
 
 function draw_front() {
   
@@ -328,12 +397,17 @@ function document_navigation() {
 
     document_panel.append('<p><strong>Document Navigation</strong></p>');
 
+    document_panel.append( '<div id="documents_panel_list"></div>' );
+    var documents_panel_list = $("#documents_panel_list");
+
     documents = get_documents();
     for (var i = 0; i < documents.length; i++) {
         if ( current_document_i && current_document_i == i ) { selected_item = "selected_item_document"; } else { selected_item = ""; }
 
-        document_panel.append( '<div class="document_navigation_item ' + selected_item + ' " document_i="' + i + '">' + 
-            documents[i].substring(0, 50) + '...</div>' );
+        documents_panel_list.append( '<div class="document_navigation_item ' + selected_item + ' " document_i="' + i + '">' + 
+            '<div class="document_navigation_i">' + (i+1) + '</div>' +
+            '<div class="document_navigation_snippet">' + documents[i].substring(0, 50) + '...</div>' +
+             '</div>' );
     }
 }
 
@@ -347,9 +421,6 @@ function document_annotation_panel() {
     } else {
         annotate_doc_panel.show();
         annotate_doc_panel.html( "" ); // refresh every time
-
-        // annotate_doc_panel.append('<p><strong>Documment Annotations</strong></p>');
-        // annotate_doc_panel.append('<div id="document_code_label"></div>');
 
         codes = get_codes();
         for (var i = 0; i < codes.length; i++) {
@@ -380,13 +451,12 @@ function fragment_annotation_panel() {
         annotate_fragment_panel.html( "" ); // refresh every time
 
         annotate_fragment_panel.append('<p><strong>Fragment Annotations</strong>' +
-            '<span id="create_fragment_button">Create Fragment</span></p>');
+            '<span id="create_fragment_button">+ Fragment</span></p>');
         
         annotate_fragment_panel.append('<div id="fragments_navigation"></div>');
         var fragments_navigation = $("#fragments_navigation");
 
         var fragments = get_fragments(current_document_i);
-        // console.log(fragments);
         
         codes = get_codes();
 
@@ -409,16 +479,18 @@ function fragment_annotation_panel() {
                 fragments_item.append('<span id="delete_fragment_button" fragment_id="' + fragments[i].id +
                     '">Delete fragment</span>');
             
-            console.log(fragments[i].id);
             fragment_codes = get_fragment_codes( fragments[i].id );
-            console.log(fragment_codes);
-
             for (var j = 0; j < fragment_codes.length; j++) {
-                fragments_item.append( '<span class="fragment_code_item fragment_code_label" code_i="' + fragment_codes[j] + '">' + codes[fragment_codes[j]] + ' (X)</span>' );
+                fragments_item.append( '<span class="fragment_code_item fragment_code_label" ' +
+                    'style="background-color:' + color_code(fragment_codes[j])  + '" ' +
+                    'code_i="' + fragment_codes[j] + '">' + codes[fragment_codes[j]] + ' (X)</span>' );
             }
             
-            fragments_item.append('<textarea class="fragment_memo" placeholder="Include memos for this fragment...">' + 
-                get_fragment_memo( current_document_i, current_fragment_id ) + '</textarea>');
+            fragments_item.append('<textarea class="fragment_memo" ' + 
+                ' placeholder="Include memos for this fragment..."' + 
+                ' fragment_id="' + fragments[i].id + '"' +
+                '>' + get_fragment_memo( current_document_i, fragments[i].id ) + 
+                '</textarea>');
 
         }
     }
@@ -478,86 +550,100 @@ function view_document_content( document_i , current_fragment = false ) {
 }
 
 function codebook_panel() {
+    target_code = false;
+    dump_output();
+
     var codebook_panel = $("#codebook_panel");
     codebook_panel.html('');
-    codebook_panel.append('<div id="codebook_panel_header">Codebook</div>');
-    codebook_panel.append('<div id="codebook_panel_content"></div>');
-    var codebook_panel_content = $("#codebook_panel_content");
-
-    // codebook_panel_content.append('<div id="codebook_panel_filter_clear">Add code to <strong>document | fragment | new fragment</strong></div>');
-
-    // var target_code = false;
-    //  target code == select case 
-        
+    
+    // 2do: falta cuando hay selected text (new fragment)    
     if (( !current_fragment ) && ( current_document_i )) {
-        target_code = "document";
+        target_code = "document";        
     }
     if ( current_fragment_id !== false) {
         target_code = "fragment";
     }
-    // 2do: falta cuando hay selected text (new fragment)
-    dump_output();
-
-    codebook_panel_content.append('<div id="codebook_panel_filter_clear">Add code to <strong>' + target_code + '</strong></div>');
-
-    codes = get_codes();
-
-    // filter codes via text input
-    // codebook_panel_content.append('<input type="text" id="codebook_panel_filter" placeholder="Filter codes...">');
-    // codebook_panel_content.append('<div id="codebook_panel_filter_clear">Clear</div>');
-
-    codes = get_codes();
-
-    if ( target_code == "document" ) {
-
-        for (var i = 0; i < codes.length; i++) {
-            if ( current_document_i ) {
-                if ( get_document_codes(current_document_i).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
+    
+    if ( target_code ) {
+        
+        codebook_panel.append('<p><strong>Add code to <span class="codebook_target">' + target_code + '</strong></strong>' +
+            '<span class="'+ target_code + '_code_item_automatic" code_behaviour="open">+ Open code</span>' + 
+            '<span class="'+ target_code + '_code_item_automatic" code_behaviour="last">+ Last used code</span>' + 
+            '<span class="'+ target_code + '_code_item_automatic" code_behaviour="quote">+ Quote code</span>' + 
+            '</p>');
                 
-            } 
-            codebook_panel_content.append( '<div class="document_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
-        }
+        codebook_panel.append('<div id="codebook_panel_content"></div>');
+        var codebook_panel_content = $("#codebook_panel_content");
+        
+        codebook_panel_content.append('<div id="codebook_filter"></div>');
+        var codebook_panel_filter = $("#codebook_filter");
+        codebook_panel_filter.append('<p>Sort codes by ' +
+            ' <span><a class="code_sort_by" code_sort_by="" href="#">[input order]</a></span> | ' +    
+            ' <span><a class="code_sort_by" code_sort_by="az" href="#">[AZ]</a></span> | ' +
+            ' <span><a class="code_sort_by" code_sort_by="freq" href="#">[freq.]</a></span> ' +
+            '<input type="text" id="code_filter_by" placeholder="Filter codes..." value="' + code_filter_by + '"></p>');
 
-        codebook_panel_content.append( '<div id="document_code_item_automatics">' + 
-            '<div class="document_code_item_automatic" code_behaviour="last">Last used code</div>' + 
-            '<div class="document_code_item_automatic" code_behaviour="open">Open code</div>' +
-            '<div class="document_code_item_automatic" code_behaviour="quote">Quote code</div>' +
-            // '<div class="document_code_item_automatic" style="background-color: red">Select tokens/features</div>' +   //v2
-            '</div>' );
+        codebook_panel_content.append('<div id="codebook_code_list"></div>');
+        codebook_code_list();
+        
+    } else {
+        codebook_panel.append('<div id="xxx">(Select a fragment or document)</div>');
     }
 
-    if ( target_code == "fragment" ) {
-        for (var i = 0; i < codes.length; i++) {
-            if ( current_fragment_id && current_fragment_id ) {
-                if ( get_fragment_codes(current_fragment_id).indexOf(i) === -1 ) { var code_class = "unselected_item"; } else { var code_class = "selected_item"; }
-            } 
-            codebook_panel_content.append( '<div class="fragment_code_item ' + code_class + '" code_i="' + i + '">' + codes[i] + '</div>' );
+}
+
+function codebook_code_list() {
+    var codebook_code_list = $("#codebook_code_list");
+    codebook_code_list.html('');
+
+    
+    codes = get_codes_list();
+    for (var i = 0; i < codes.length; i++) {
+
+        background_color = "white";
+        
+        if ( target_code == "document" && current_document_i ) {
+            if ( get_document_codes(current_document_i).indexOf( codes[i].i ) === -1 ) { } else { 
+                background_color = color_code( codes[i].i ); 
+            }
         }
-        codebook_panel_content.append( '<div id="fragment_code_item_automatics">' + 
-            '<div class="fragment_code_item_automatic" code_behaviour="last">Last used code</div>' + 
-            '<div class="fragment_code_item_automatic" code_behaviour="open">Open code</div>' +
-            '<div class="fragment_code_item_automatic" code_behaviour="quote">Quote code</div>' +
-            '</div>' );
+        if ( target_code == "fragment" && current_fragment_id ) {
+            if ( get_fragment_codes(current_fragment_id).indexOf( codes[i].i ) === -1 ) { } else { 
+                background_color = color_code( codes[i].i ); 
+             }
+        }
+            
+        codebook_code_list.append( '<div class="' + target_code + '_code_item codebook_code_item" ' + 
+            ' style="background-color: ' + background_color + '" ' +
+            ' code_i="' + codes[i].i + '">' + codes[i].code_stat + '</div>' );
     }
 
+    dump_output();
 }
 
 function export_and_dump_panel() {
     var dump_panel = $("#dump");
-    dump_panel.append('<p><strong>Export, Settings & Monitor </strong></p>');
-    dump_panel.append('<div id="dump_buttons"></div>');
-    var dump_panel_buttons = $("#dump_buttons");
-    dump_panel_buttons.append('<div id="export" class="export-button">Export JSON</div>');
-    // dump_panel_buttons.append('<div id="export" class="export-button">Export JSON without text</a></div>'); //v2
-    dump_panel_buttons.append('<div id="monitor" class="export-button monitor"><a href="#" id="">Toggle JSON monitor</a></div>');    
-    dump_panel_buttons.append('<div id="import" class="export-button">Import JSON</div>');
-    dump_panel_buttons.append('<input type="file" id="file-input" />');
+    dump_panel.html('');
+    dump_panel.append('<p><strong>Import/Export JSON</strong>' +
+        '<span id="export" class="export-button">&nbsp;<a href="#">[Export JSON]</a></span>' + 
+        '<span id="import" class="export-button">&nbsp;<a href="#">[Import JSON]</a></span>' + 
+        '</p>');
+    dump_panel.append('<input type="file" id="file-input" />');
+    dump_panel.append('<p><strong>State monitor</strong>' +
+        '<span id="monitor" class="export-button monitor">&nbsp;<a href="#">[Toggle JSON monitor]</a></span>' + 
+        '</p>');
     dump_panel.append('<div id="dump_output"></div>');    
+
+    //var dump_panel_buttons = $("#dump_buttons");
+    // dump_panel_buttons.append('<div id="export" class="export-button">Export JSON without text</a></div>'); //v2
+    //dump_panel_buttons.append('<div id="monitor" class="export-button monitor"><a href="#" id="">Toggle JSON monitor</a></div>');    
 }
+
 
 // ------------------------------------------------------------------------------------------------------
 // GUI reactions fns
 // ------------------------------------------------------------------------------------------------------
+
 
 $(document).on('click', '.document_navigation_item', function() {
     current_fragment = false;
@@ -579,7 +665,6 @@ $(document).on('click', '.document_code_item', function() {
         set_documents_annotations( current_document_i , code = code_i );
         last_used_code = code_i;
         document_annotation_panel(); 
-        fragment_annotation_panel();
         codebook_panel();
     }
     dump_output();
@@ -702,15 +787,28 @@ $(document).on('click', '.fragment_navigation_item', function() {
     dump_output();
 });
 
+// update the code list by filtering the codes with text in codebook_panel_filter
+$(document).on('keyup', '#code_filter_by', function() {
+    code_filter_by = $(this).val();
+    codebook_code_list();
+});    
+
+$(document).on('click', '.code_sort_by', function() {
+    code_sort_by = $(this).attr("code_sort_by");
+    if (code_sort_by == "") {code_sort_by=false;}
+    codebook_code_list();
+});
+
 $(document).on('change', '#document_memo', function() {
     var memo = $(this).val();
     set_documents_annotations( current_document_i, code = false, memo = memo );
     dump_output();
 });
 
-$(document).on('change', '#fragment_memo', function() {
+$(document).on('change', '.fragment_memo', function() {
     var memo = $(this).val();
-    set_fragments_annotations( document_i = current_document_i, fragment_id = current_fragment_id, code_i = false, memo = memo );
+    var fragment_id = $(this).attr("fragment_id");
+    set_fragments_annotations( document_i = current_document_i, fragment_id = fragment_id, code_i = false, memo = memo );
     dump_output();
 });
 
@@ -781,6 +879,7 @@ $(document).on('click', '#import', function() {
 // aux fns
 // ------------------------------------------------------------------------------------------------------
 
+
 const idx = function() {
     return Math.random()
       .toString(36)
@@ -844,8 +943,8 @@ window.onbeforeunload = function(e) {   // trigger alert on windown close
 //   return 'Please make sure to save your work before leaving this page.';
 };
 
-function color_code( code ) {
-    codes = output.codes;
+function color_code( code_i ) {
+    var codes = output.codes;
     var color_brewer = [
         "rgba(255, 0, 0, .3)",
         "rgba(0, 255, 0, .3)",
@@ -860,13 +959,12 @@ function color_code( code ) {
     ];
 
     var i = 0;
-    codes2 = codes.map(function(code, index) {
+    codes2 = codes.map(function(code_i, index) {
         if (i > color_brewer.length) {
             i=0;
         } 
         i++;
         return( color_brewer[index])
     });
-    //console.log(code);
-    return codes2[code];
+    return codes2[code_i];
 }

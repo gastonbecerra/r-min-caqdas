@@ -15,7 +15,8 @@ body {
     justify-content: center;
 }
 
-.document_navigation_item , .fragment_navigation_item {
+.fragment_navigation_item { 
+    /* .document_navigation_item */
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
@@ -32,7 +33,7 @@ body {
     justify-content: center;
 }
 
-#annotate_fragment , #documents_panel , #documents_viewer_panel {
+#annotate_fragment , #documents_panel , #documents_viewer_panel, #codebook_panel {
     padding: 5px;
     margin: 5px;
     border: solid 1px black;
@@ -88,7 +89,9 @@ body {
     */
 }
 
-#create_fragment_button {
+.document_code_item , .document_code_item_automatic ,
+.fragment_code_item , #create_fragment_button ,  .fragment_code_item_automatic , 
+.code_item_automatic {
     padding: 5px;
     margin: 10px;
     border: solid 1px green;
@@ -113,6 +116,17 @@ body {
     cursor: pointer;
 }
 
+.fragment_code_label {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px gray;
+    height: 30px;
+    max-width: 100px;
+    size: 75%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
 #delete_fragment_button {
         padding: 5px;
     margin: 5px;
@@ -132,7 +146,6 @@ body {
 
 .selected_item_fragment , .selected_item_document {
     font-weight: bold;
-    /* background-color: lightblue !important; */
 }
 
 #document_viewer , #document_viewer2 {
@@ -236,10 +249,46 @@ character_annotation {
     z-index: 100;
     left: 50%;
     top: 50%; */
-    
 
 }
 
 .fragments_item {
     padding: 5px;
+}
+
+.codebook_target {
+    background-color: lightblue;
+}
+
+#documents_panel_list {
+    display: flex;
+    flex-direction: row;
+    /* justify-content: center; */
+}
+
+.document_navigation_i{
+    margin: -30px auto auto;
+    line-height: 50px;
+    font-size: 40px;
+    color: darkgray;
+    text-align: center;
+}
+
+.document_navigation_item {
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
+    background-color: white;
+    height: 120px;
+    min-width: 120px;
+    cursor: pointer;
+}
+
+.document_navigation_snippet{
+    margin: 0 auto auto 0;
+    font-size: 11px;
+}
+
+.selected_item_document {
+    background-color: antiquewhite !important;
 }
