@@ -149,18 +149,67 @@ frag_annotations = get_fragments_annotations(x = json)
 
 # manage jsons -----
 
-# mergin jsons
+# merge jsons
 merge_jsons <- function( x , y ) {
-    z <- list(
-        documents = x$documents,
-        codes = x$codes,
-        documents_annotations = x$documents_annotations,
-        fragments_annotations = x$fragments_annotations
-    )
-    z$documents_annotations <- c(z$documents_annotations , y$documents_annotations)
-    z$fragments_annotations <- c(z$fragments_annotations , y$fragments_annotations)
+    # documents = x.documents.concat(y.documents)
+    # codes = x.codes.concat(y.codes)
+    # z <- list(
+    #     documents = documents,
+    #     codes = codes,
+    #     documents_annotations = x.documents_annotations.concat(y.documents_annotations),
+    #     fragments_annotations = x.fragments_annotations.concat(y.fragments_annotations)
+    # )
+
+    documents = as.character();
+    for( i in 1:length(x$documents) ) {
+        x$documents <- c(x$documents , y$documents[i])
+    }
+
     return(z)
 }
+
+x <- jsonlite::fromJSON(txt = './jsons/test-merge1.json')
+y <- jsonlite::fromJSON(txt = './jsons/test-merge2.json')
+xy <- merge_jsons(x = x , y = y)
+xy
+
+# a lo cabeza
+z <- list()
+z$documents <- c(x$documents , y$documents)
+z$codes <- c(x$codes , y$codes)
+z$documents_annotations <- rbind(x$documents_annotations , y$documents_annotations)
+z$fragments_annotations <- rbind(x$fragments_annotations , y$fragments_annotations)
+
+# sin reemplazar, pero ajustnado los indices
+
+base = length(x$documents)
+mas_indice <- function(indice , base) { return(indice+base) }
+y_documents_annotations <- cbind(document = lapply(X = y$documents_annotations$document , FUN = mas_indice, base=base ), 
+      codes = lapply(X = y$documents_annotations$codes , FUN = mas_indice, base=base ), 
+      memo = y$documents_annotations$memo, 
+      annotation_update = y$documents_annotations$annotation_update, 
+      annotation_user = y$documents_annotations$annotation_user)
+y_fragments_annotations <- cbind( 
+      id = y$fragments_annotations$id, 
+      document = lapply(X = y$fragments_annotations$document , FUN = mas_indice, base=base ), 
+      text = y$fragments_annotations$text,
+      start = y$fragments_annotations$start,
+      end = y$fragments_annotations$end, 
+      codes = lapply(X = y$fragments_annotations$codes , FUN = mas_indice, base=base ), 
+      memo = y$fragments_annotations$memo, 
+      annotation_update = y$fragments_annotations$annotation_update, 
+      annotation_user = y$fragments_annotations$annotation_user)
+z <- list()
+z <- x
+z$documents <- c(z$documents , y$documents)
+z$codes <- c(z$codes , y$codes)
+z$documents_annotations <- rbind(z$documents_annotations , y_documents_annotations)
+z$fragments_annotations <- rbind(z$fragments_annotations , y_fragments_annotations)
+
+
+
+
+
 
 
 

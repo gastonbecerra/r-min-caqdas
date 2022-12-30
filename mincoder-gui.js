@@ -50,6 +50,24 @@ function dump_output() {
      );
 }
 
+function reset_output() {
+    // reseting variables, not input data
+    current_document_i = false; 
+    last_used_code = false;
+    last_coded_document_i = false;
+    last_coded_fragment_id = false;
+    selected_text = false;
+    selected_range_start = false;
+    selected_range_end = false;
+    current_fragment = false;
+    current_fragment_id = false;
+    changes_since_export = false;   //2do: no lo estoy trackeando
+    target_code = false;
+    code_sort_by = false;
+    code_filter_by = '';
+}
+
+
 
 // ------------------------------------------------------------------------------------------------------
 // data handling fns
@@ -345,6 +363,8 @@ function set_variables( show_monitor = false , annotation_user = false ) {
 
 function draw_front() {
   
+    $("#posta").html('');
+
     // front markup
     $("#posta").append( '<div id="container"></div>' );
 
@@ -629,8 +649,8 @@ function export_and_dump_panel() {
         '<span id="import" class="export-button">&nbsp;<a href="#">[Import JSON]</a></span>' + 
         '</p>');
     dump_panel.append('<input type="file" id="file-input" />');
-    dump_panel.append('<p><strong>State monitor</strong>' +
-        '<span id="monitor" class="export-button monitor">&nbsp;<a href="#">[Toggle JSON monitor]</a></span>' + 
+    dump_panel.append('<p><strong>State/JSON monitor</strong>' +
+        '<span id="monitor" class="export-button monitor">&nbsp;<a href="#">[Toggle state monitor and JSON preview]</a></span>' + 
         '</p>');
     dump_panel.append('<div id="dump_output"></div>');    
 
@@ -920,10 +940,11 @@ function handleFileSelect (e) {
     reader.readAsText(file);
     reader.addEventListener("load", function () {
         var json = JSON.parse(reader.result);
-        console.log(json);
+        // console.log(json);
         output = json;
         // document_navigation_panel();
-        document_navigation();
+        reset_output();
+        draw_front();               
         dump_output();
     });
 
