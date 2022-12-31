@@ -1,1 +1,125 @@
-{"documents":["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque mollis risus libero. Maecenas accumsan scelerisque blandit. Duis fringilla lorem scelerisque, porttitor lorem eu, tempor magna. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec vehicula condimentum venenatis. Praesent sed interdum felis, id pellentesque libero. Donec dolor nibh, aliquam at nisi in, semper feugiat felis. Vestibulum molestie aliquet metus, ut venenatis ante auctor sed. Sed vel malesuada eros. Vestibulum malesuada volutpat luctus. Donec dapibus tellus erat. Pellentesque eu neque felis. Aliquam tincidunt magna eu sollicitudin cursus.","Quisque eget leo ut urna lobortis laoreet. Maecenas at consectetur ligula, at tristique mauris. Phasellus a placerat risus. Sed risus purus, imperdiet non mi et, suscipit bibendum augue. Nunc urna nisi, tincidunt ac augue interdum, molestie egestas nulla. Sed eleifend nibh eros. Aenean a nisl in orci accumsan ultrices. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices sapien quam, vel dignissim neque euismod at. Mauris ante ante, commodo tempus dolor id, ultrices faucibus lectus. Vestibulum felis magna, fermentum sed diam sed, ultricies lacinia purus. Praesent eleifend tellus et odio pulvinar vestibulum. Aenean tortor diam, ultricies vel rhoncus eu, ultricies vitae lectus. Praesent hendrerit, lacus quis vulputate rutrum, elit erat placerat nisl, et scelerisque mauris quam sed ligula. In arcu erat, ultrices id sem non, bibendum vehicula lectus. Duis posuere bibendum volutpat.","Donec eleifend, nisi sed facilisis semper, dui felis molestie turpis, nec maximus leo mi ut massa. Vivamus metus orci, fermentum quis pretium nec, interdum vel nisi. Vivamus ut cursus odio. Nunc mollis purus non laoreet posuere. Sed quis odio nisl. Morbi malesuada vehicula lectus a imperdiet. Integer vel elit sit amet sapien consectetur pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Maecenas molestie odio nibh, et porttitor leo aliquet eu. Nam sagittis felis id pulvinar porta. Phasellus at turpis ut sapien fringilla vehicula id vitae leo.","Integer tincidunt enim id mi lobortis pharetra. Nam et nisi at felis consequat sodales quis ac dui. Phasellus eget nisi a ligula varius vestibulum. In facilisis ligula eget arcu gravida tempor. Duis sed euismod augue, sit amet suscipit orci. Donec commodo metus eros, a interdum lacus hendrerit eu. Morbi vitae mattis arcu. Etiam a augue vitae nisl tincidunt dignissim. Aenean consectetur est vel lacus pellentesque iaculis. Integer porttitor ultrices quam vel dignissim. Vivamus eu libero tortor. Ut consectetur massa ultricies nunc gravida ullamcorper. Proin bibendum felis vel metus feugiat facilisis.","Aenean non mauris laoreet velit ultricies eleifend vitae quis sem. Vestibulum fringilla augue at sapien luctus ultrices. Fusce vel vulputate sapien. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras accumsan arcu tellus. Suspendisse tincidunt diam vulputate risus gravida fermentum. Cras ultricies, nisi et sollicitudin luctus, ex purus volutpat metus, interdum vestibulum nibh nulla a orci. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed dapibus elit quis nisl iaculis posuere. Nulla hendrerit massa ut augue venenatis accumsan. Pellentesque non porttitor arcu. Sed maximus tellus egestas leo faucibus hendrerit."],"codes":["code-1","code-2","code-3","doc2-1","doc2-2"],"documents_annotations":[{"document":0,"codes":[3,4],"memo":"","annotation_update":"2022-12-26T23:43:53.643Z","annotation_user":"gaston"},{"document":3,"codes":[2,1],"memo":"","annotation_update":"2022-12-26T23:44:14.791Z","annotation_user":"gaston"}],"fragments_annotations":[{"id":"np7wy3ri","document":1,"text":". Sed eleifend nibh eros. Aenean a nisl in orci accumsan ultrices. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices sapien quam, vel dignissim neque euismod at. Mauris ante ante, commodo tempus dolor id, ultrices faucibus lectus. Vestibulum felis magna, fermentum sed diam sed, ultricies lacinia purus. Praesent eleifend tellus et odio pulvinar vestibulum. Aenean tortor diam, ultricies vel rhoncus eu, ultricies vitae lectu","start":254,"end":698,"codes":[3],"memo":"","annotation_update":"2022-12-26T23:44:06.488Z","annotation_user":"gaston"},{"id":"h21p3q8s","document":1,"text":"ed risus pur","start":125,"end":136,"codes":[2,4],"memo":"","annotation_update":"2022-12-26T23:44:02.625Z","annotation_user":"gaston"},{"id":"68tqms7j","document":2,"text":"um ante ipsum primis in fauc","start":361,"end":388,"codes":[3],"memo":"","annotation_update":"2022-12-26T23:44:09.759Z","annotation_user":"gaston"}]}
+{
+  "documents": [
+    "document 1  document 1  document 1  document 1  document 1  ",
+    "document 2  document 2  document 2  document 2  document 2  ",
+    "document 3  document 3  document 3  document 3  document 3  ",
+    "document 4  document 4  document 4  document 4  document 4  ",
+    "document 5  document 5  document 5  document 5  document 5  ",
+    "papiro 6  papiro 6  papiro 6  papiro 6  papiro 6  ",
+    "papiro 7  papiro 7  papiro 7  papiro 7  papiro 7  ",
+    "papiro 8  papiro 8  papiro 8  papiro 8  papiro 8  ",
+    "papiro 9  papiro 9  papiro 9  papiro 9  papiro 9  ",
+    "papiro 10  papiro 10  papiro 10  papiro 10  papiro 10  "
+  ],
+  "codes": [
+    "codigo1",
+    "codigo2-2",
+    "codigo3-2",
+    "codigo4-2"
+  ],
+  "documents_annotations": [
+    {
+      "document": 0,
+      "codes": [],
+      "memo": "",
+      "annotation_update": "2022-12-31T16:58:02.817Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "document": 1,
+      "codes": [
+        1,
+        0,
+        2
+      ],
+      "memo": "",
+      "annotation_update": "2022-12-31T17:02:04.042Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "document": 9,
+      "codes": [
+        3,
+        0
+      ],
+      "memo": "com10",
+      "annotation_update": "2022-12-31T17:03:06.406Z",
+      "annotation_user": "gaston"
+    }
+  ],
+  "fragments_annotations": [
+    {
+      "id": "nhb8k4vc",
+      "document": 0,
+      "text": "document 1 document 1",
+      "start": 24,
+      "end": 45,
+      "codes": [],
+      "memo": "",
+      "annotation_update": "2022-12-31T16:57:34.334Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "id": "6twpcgvl",
+      "document": 1,
+      "text": "document 2 document 2",
+      "start": 24,
+      "end": 45,
+      "codes": [
+        2,
+        1
+      ],
+      "memo": "",
+      "annotation_update": "2022-12-31T17:02:10.333Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "id": "zxtlhz6c",
+      "document": 1,
+      "text": "document 2 document 2",
+      "start": 12,
+      "end": 33,
+      "codes": [],
+      "memo": "",
+      "annotation_update": "2022-12-31T16:57:45.734Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "id": "q2m9wc16",
+      "document": 2,
+      "text": "document 3 document 3",
+      "start": 24,
+      "end": 45,
+      "codes": [],
+      "memo": "",
+      "annotation_update": "2022-12-31T16:57:56.422Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "id": "kju17b4c",
+      "document": 0,
+      "text": "document 1",
+      "start": 0,
+      "end": 10,
+      "codes": [
+        1
+      ],
+      "memo": "comefrago",
+      "annotation_update": "2022-12-31T17:03:15.808Z",
+      "annotation_user": "gaston"
+    },
+    {
+      "id": "7o6qc0dy",
+      "document": 4,
+      "text": "document 5",
+      "start": 0,
+      "end": 9,
+      "codes": [
+        3
+      ],
+      "memo": "",
+      "annotation_update": "2022-12-31T17:02:37.818Z",
+      "annotation_user": "gaston"
+    }
+  ]
+}

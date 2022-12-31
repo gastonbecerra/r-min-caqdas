@@ -2,8 +2,17 @@
 // PENDIENTES GUI
 // ------------------------------------------------------------------------------------------------------
 
-// todo marcha bien, millhouse!
-
+// 2do: editar codigos desde la GUI
+// 2do: borrar codigos desde la GUI
+// 2do: borrar documentos desde la GUI
+// 2do: editar documentos desde la GUI
+// 2do: editar codigos desde R
+// 2do: borrar codigos desde R
+// 2do: borrar documentos desde R
+// 2do: editar documentos desde R
+// 2do: borrar fragmentos desde R
+// 2do: editar fragmentos desde R
+// 2do: concordancia inter-pares
 
 // ------------------------------------------------------------------------------------------------------
 // vars and default values
@@ -479,6 +488,9 @@ function fragment_annotation_panel() {
         var fragments = get_fragments(current_document_i);
         
         codes = get_codes();
+
+        console.log(fragments);
+        console.log(codes);
 
         for (var i = 0; i < fragments.length; i++) {    
             

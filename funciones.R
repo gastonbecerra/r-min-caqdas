@@ -58,7 +58,21 @@ start_gui <- function( docs = FALSE, codes = FALSE, show_monitor = FALSE, annota
     runApp(list(ui = ui, server = server), launch.browser =F)
 }
 
+
+
+
 x <- unlist(sentences2[1:20,"oraciones"] , use.names=FALSE)
+
+x <- c()
+for (i in 1:5) {
+  x[i] = strrep(paste("document" , i , " " ), 5)
+}
+for (i in 6:10) {
+  x[i] = strrep(paste("papiro" , i , " " ), 5)
+}
+x
+rm(i)
+
 
 start_gui( docs = x )
 start_gui();
@@ -181,39 +195,48 @@ z$documents_annotations <- rbind(x$documents_annotations , y$documents_annotatio
 z$fragments_annotations <- rbind(x$fragments_annotations , y$fragments_annotations)
 
 # sin reemplazar, pero ajustnado los indices
-
-base = length(x$documents)
+x <- jsonlite::fromJSON(txt = './jsons/test-merge1.json')
+y <- jsonlite::fromJSON(txt = './jsons/test-merge2.json')
+base_doc = length(x$documents)
+base_codes = length(x$codes)
 mas_indice <- function(indice , base) { return(indice+base) }
-y_documents_annotations <- cbind(document = lapply(X = y$documents_annotations$document , FUN = mas_indice, base=base ), 
-      codes = lapply(X = y$documents_annotations$codes , FUN = mas_indice, base=base ), 
+y_documents_annotations <- cbind(document = lapply(X = y$documents_annotations$document , FUN = mas_indice, base=base_doc ), 
+      codes = lapply(X = y$documents_annotations$codes , FUN = mas_indice, base=base_codes ), 
       memo = y$documents_annotations$memo, 
       annotation_update = y$documents_annotations$annotation_update, 
       annotation_user = y$documents_annotations$annotation_user)
 y_fragments_annotations <- cbind( 
       id = y$fragments_annotations$id, 
-      document = lapply(X = y$fragments_annotations$document , FUN = mas_indice, base=base ), 
+      document = vapply(X = y$fragments_annotations$document , FUN = mas_indice, base=base_doc , FUN.VALUE = numeric(1) ), 
       text = y$fragments_annotations$text,
       start = y$fragments_annotations$start,
       end = y$fragments_annotations$end, 
-      codes = lapply(X = y$fragments_annotations$codes , FUN = mas_indice, base=base ), 
+      codes = lapply(X = y$fragments_annotations$codes , FUN = mas_indice, base=base_codes ), 
       memo = y$fragments_annotations$memo, 
       annotation_update = y$fragments_annotations$annotation_update, 
-      annotation_user = y$fragments_annotations$annotation_user)
+      annotation_user = y$fragments_annotations$annotation_user) %>% 
+  as.data.frame() %>%
+  mutate(document = as.integer(document) , 
+         id = as.character(id) , 
+         text = as.character(text) , 
+         start = as.integer(start) , 
+         end = as.integer(end) , 
+         memo = as.character(memo) ,
+         annotation_update = as.character(annotation_update) ,
+         annotation_user = as.character(annotation_user) )
+
 z <- list()
 z <- x
 z$documents <- c(z$documents , y$documents)
 z$codes <- c(z$codes , y$codes)
 z$documents_annotations <- rbind(z$documents_annotations , y_documents_annotations)
 z$fragments_annotations <- rbind(z$fragments_annotations , y_fragments_annotations)
+rm(base_codes,base_doc,mas_indice,y_documents_annotations,y_fragments_annotations)
 
+x$fragments_annotations %>% glimpse()
+z$fragments_annotations %>% glimpse()
 
-
-
-
-
-
-
-
+z %>% jsonlite::write_json(path = './jsons/test-merge3.json')
 
 
 
