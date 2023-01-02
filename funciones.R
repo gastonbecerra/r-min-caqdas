@@ -1,9 +1,9 @@
 library(tidyverse)
 library(jsonlite)
-# library(tidytext)
-# library(stringi)
 library(shiny)
 library(shinyjs)
+# library(tidytext)
+# library(stringi)
 
 
 # create jsons
@@ -15,28 +15,40 @@ zizi1996 <- function() {
     "AG: To me I would say it is very different. When I left my country and I came here in 1983, I was scared to become a father. As a Christian I was afraid not to meet the proper woman to become my wife in order to become a father. When I met my wife and realized that she was a Christian and looking behind at how my father raised us, I decided to become a father at that time. Fortunately, I had my father as an example I would say. He has been with my mother since I was little, and I would say he is still an example for me." ,
     "L: Mine would have been a combination of people. My father would definitely be one of those people because my father was a very good father. He is a guy who has justice; you cannot make him tremble in front of situations. He sits, analyzes, and comes to a conclusion. There are several pastors in my life I have come to admire, in the way some of them were. They also play a part, in that it is going to be a combina? tion of people. My father was the strongest role model, but he was not the only person who played the role." ,
     "J: I thought it was going to be an innovative experience. If I could say that, something you actually have the power to influence your personality in a very young mind to do some good. So I think it would be like being from a military background, creating a human being for the profit of society.",
-    "I could say the moment I met my wife, I thought about being a father. As my first girl friend, I thought eventually I would be married to her. To me it became obvious that I would be a father as a married person. I thought it was going to be a difficult job, a 24-hour job because there is no such thing as part-time fatherhood. I think it takes your whole being mentally and physically. Your presence in the house, in the home is very necessary at all times. My kids—they have it, God bless them they have it. I thought it was going to be a unique experience—you do not learn it in college or anywhere else.",
-    "It is on-the-job training.",
-    "Yes, yes when I think about the days of my youth I can see my father and his dedi? cation. The love that he has shown, and his hard-working style and his honesty. All that left a serious imprint on me. My dream was to look like my father. Everybody saw in him a model. His credibility was something that everybody I would say envies, that type of person he was. They love him—people would give him money to save because they knew he would not spend it. So, I always thought that it would be in my best in? terest to be like him."
+    "C: I could say the moment I met my wife, I thought about being a father. As my first girl friend, I thought eventually I would be married to her. To me it became obvious that I would be a father as a married person. I thought it was going to be a difficult job, a 24-hour job because there is no such thing as part-time fatherhood. I think it takes your whole being mentally and physically. Your presence in the house, in the home is very necessary at all times. My kids—they have it, God bless them they have it. I thought it was going to be a unique experience—you do not learn it in college or anywhere else.",
+    "C: Yes, yes when I think about the days of my youth I can see my father and his dedication. The love that he has shown, and his hard-working style and his honesty. All that left a serious imprint on me. My dream was to look like my father. Everybody saw in him a model. His credibility was something that everybody I would say envies, that type of person he was. They love him—people would give him money to save because they knew he would not spend it. So, I always thought that it would be in my best in? terest to be like him."
   )
   message("Source: Zizi, 1996, p. 170, 221. (Haitian Father Data). Quoted and analyzed in Auerbach, C., & Silverstein, L. B. (2003). Qualitative data: an introduction to coding and analysis. New York University Press. p. 49-53");
   return(quotes)
 }
-
 docs <- zizi1996()
+
+zizi1996analyzed <- function() {
+  # 2do: zizi1996 totalmente analizado, seria un sample database que hay que cargar como archivo externo /sample
+  json <- jsonlite::fromJSON(txt = "./jsons/zizi1996analyzed.json")
+  return(json)
+}
+
+analizado <- zizi1996analyzed()
 
 blank_input_list <- function () {
   return(
     list(
       documents = as.character(),
       codes = as.character(),
-      documents_annotations = list(),
-      fragments_annotations = list()
+      documents_annotations = data.frame(),
+      fragments_annotations = data.frame()
     )
   )
 }
 
 blank_list <- blank_input_list()
+blank_list
+
+
+
+
+
 
 
 
@@ -44,47 +56,64 @@ blank_list <- blank_input_list()
 
 
 
-start_gui <- function( docs = FALSE, codes = FALSE, show_monitor = FALSE, annotation_user = 'gaston') {
+start_gui <- function( input = FALSE, docs = FALSE, codes = FALSE, show_monitor = FALSE, annotation_user = 'default_user') {
 
-    # if ( is.character(docs) && is.vector(docs)) {    
-    #     docs <- gsub("[^A-Za-z0-9 ]","", docs)
-    # } else {
-    #     docs <- vector()
-    # }
-  
-    # if ( is.character(codes) && is.vector(codes)) {
-    # } else {
-    #     codes = vector()
-    # }
-  
     json_input <- blank_input_list()
+    
+    if (is.list(input)) { 
+      # se dio un json
+      # 2do: unificar terminologia json/list
+      if ( is.character(input$documents) && is.vector(input$documents)) { json_input$documents = input$documents } 
+      if ( is.character(input$codes) && is.vector(input$codes)) { json_input$codes = input$codes }
+      if ( is.data.frame(input$documents_annotations)) { json_input$documents_annotations = input$documents_annotations }
+      if ( is.data.frame(input$fragments_annotations)) { json_input$fragments_annotations = input$fragments_annotations }
+      json_input <- jsonlite::toJSON(json_input)
+    } 
+  
+    if (is.logical(input) && (!input)) {
+      # si no se dio una lista (json) pero si se pusieron los inputs como vectores
+      if ( is.character(docs) && is.vector(docs)) { json_input$documents = docs } 
+      if ( is.character(codes) && is.vector(codes)) { json_input$codes = codes } 
+      json_input <- jsonlite::toJSON(json_input)
+    }
 
     ui <- fluidPage(
         useShinyjs(),
         tags$head( 
                 includeScript("mincoder-gui.js"), 
-                includeCSS("mincoder-gui.css")
+                includeCSS("mincoder-gui.css"),
+                includeCSS("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css")
                 ),
         fluidRow(tags$div(id="posta"))
     )
     server <- function(input, output, session) {
         runjs(paste0("$(document).ready(function() { 
                 var data_from_R = " , json_input , ";
-                console.log(data_from_R);
+                /* console.log(data_from_R); */
                 read_input_data(data_from_R);
-                set_variables( show_monitor = false , annotation_user = 'gaston' );
+                set_variables( show_monitor = false , annotation_user = '" , annotation_user , "' );
                 draw_front();
             });"))
     }
     runApp(list(ui = ui, server = server), launch.browser =T)
 }
 
-start_gui();
+
+
+
+start_gui( input = analizado )
 start_gui( docs = docs )
+json <- jsonlite::fromJSON(txt = "./jsons/test-merge1.json")
+json <- jsonlite::fromJSON(txt = "./jsons/mincoder_202301020215.json")
+start_gui( input = json )
+start_gui( docs = docs , codes = c("xxx","yyy") )
+start_gui();
 
 
 # 2do: arrancar sin parametros, para tomar desde json
 # includeCSS("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css")
+
+
 
 
 
