@@ -11,8 +11,8 @@
     <script>
 
         // inputs
-            // esto se puede armar en R, a partir de codigos y documentos; 
-            // (en r hay que armar los otros 2 elementos que cruzan codigos, framgentos y documentos)
+        //     esto se puede armar en R, a partir de codigos y documentos; 
+        //     (en r hay que armar los otros 2 elementos que cruzan codigos, framgentos y documentos)
             
             var data_from_R = {
                 "documents":
@@ -25,6 +25,14 @@
                 "documents_annotations":[],
                 "fragments_annotations":[]
             }
+
+            var data_from_R = {
+                "documents": [],
+                "codes": [],
+                "documents_annotations":[],
+                "fragments_annotations":[]
+            }
+
                     
             //2do: o desde un json anteriormente guardado
 
@@ -32,7 +40,6 @@
         set_variables( annotation_user = "gaston" );
 
         $(document).ready(function() {
-            // console.log(data_from_R);
             draw_front();
         });
 

@@ -13,12 +13,15 @@
 // 2do: borrar fragmentos desde R
 // 2do: editar fragmentos desde R
 // 2do: concordancia inter-pares
+// 2do: variables a un objeto estate, para poder resetearlas y mostrarlas en el monitor
+// 2do: prompt para variables de usuario (e.g., annotation_user)
+// 2do: prompot para agregar documentos?
 
 // ------------------------------------------------------------------------------------------------------
 // vars and default values
 // ------------------------------------------------------------------------------------------------------
 
-var output = [];
+var data_json = [];
 var current_document_i = false; 
 var last_used_code = false;
 var last_coded_document_i = false;
@@ -32,13 +35,12 @@ var changes_since_export = false;   //2do: no lo estoy trackeando
 var target_code = false;
 var code_sort_by = false;
 var code_filter_by = '';
-
 var show_monitor = false;
 var annotation_user = false;
 
-function dump_output() {
-    if (!show_monitor) { $("#dump_output").hide(); }
-    $("#dump_output").html( 
+function estate_monitor() {
+    if (!show_monitor) { $("#estate_monitor").hide(); }
+    $("#estate_monitor").html( 
         "current_document_i: " + current_document_i + "<br>" +
         "last_used_code: " + last_used_code + "<br>" +
         "last_coded_document_i: " + last_coded_document_i + "<br>" +
@@ -55,7 +57,7 @@ function dump_output() {
 
         "show_monitor: " + show_monitor + "<br>" +
         "annotation_user: " + annotation_user + "<br>" +
-        "<pre>" + JSON.stringify(output, null, '\t') + "</pre>" 
+        "<pre>" + JSON.stringify(data_json, null, '\t') + "</pre>" 
      );
 }
 
@@ -74,6 +76,8 @@ function reset_output() {
     target_code = false;
     code_sort_by = false;
     code_filter_by = '';
+    show_monitor = false;
+    annotation_user = false;
 }
 
 
@@ -82,11 +86,26 @@ function reset_output() {
 // data handling fns
 // ------------------------------------------------------------------------------------------------------
 
+function get_documents() {
+    if (typeof data_json.documents != "undefined") {
+        var docs = [];
+        for (var i = 0; i < data_json.documents.length; i++) {
+            docs.push(data_json.documents[i]);
+        }
+        if (docs.length == 0) { 
+            docs = false; 
+            // alert('data_json length 0'); 
+        }
+        return docs;
+    } else {
+        return( false );
+    }
+}
 
 function get_codes() {
     var codes = [];
-    for (var i = 0; i < output.codes.length; i++) {
-        codes.push(output.codes[i]);
+    for (var i = 0; i < data_json.codes.length; i++) {
+        codes.push(data_json.codes[i]);
     }
     return codes;
 }
@@ -108,14 +127,14 @@ function get_codes_list() {
             code_stat: false
         }
         
-        for (var j = 0; j < output.documents_annotations.length; j++) {    
-            if ( output.documents_annotations[j].codes.indexOf(i) !== -1 ) {
+        for (var j = 0; j < data_json.documents_annotations.length; j++) {    
+            if ( data_json.documents_annotations[j].codes.indexOf(i) !== -1 ) {
                 code.document_freq++;
             }
         }
 
-        for (var j = 0; j < output.fragments_annotations.length; j++) {
-            if ( output.fragments_annotations[j].codes.indexOf(i) !== -1 ) {
+        for (var j = 0; j < data_json.fragments_annotations.length; j++) {
+            if ( data_json.fragments_annotations[j].codes.indexOf(i) !== -1 ) {
                 code.fragment_freq++;
             }
         }
@@ -162,49 +181,41 @@ function get_code_i(code) {
 
 function set_new_code( code ) {
 
-    output.codes.push(code);
+    data_json.codes.push(code);
     return( get_code_i(code) );
-}
-
-function get_documents() {
-    var docs = [];
-    for (var i = 0; i < output.documents.length; i++) {
-        docs.push(output.documents[i]);
-    }
-    return docs;
 }
 
 function set_documents_annotations( document_i , code_i = false , memo = false , selected_tokens = false ) {
     document_i = parseInt(document_i);
     var is_new_document = true;
     
-    for (var i = 0; i < output.documents_annotations.length; i++) {
-        if (output.documents_annotations[i].document == document_i) {
+    for (var i = 0; i < data_json.documents_annotations.length; i++) {
+        if (data_json.documents_annotations[i].document == document_i) {
             is_new_document = false;
             
             if (code_i) {
                 code_i = parseInt(code_i);    
-                if ( output.documents_annotations[i].codes.indexOf( code_i ) === -1 ) {
-                    output.documents_annotations[i].codes.push( code_i );
+                if ( data_json.documents_annotations[i].codes.indexOf( code_i ) === -1 ) {
+                    data_json.documents_annotations[i].codes.push( code_i );
                     last_used_code = code_i;
                     last_coded_document_i = document_i;
                 } else {
-                    output.documents_annotations[i].codes.splice( output.documents_annotations[i].codes.indexOf( code_i ), 1 );
+                    data_json.documents_annotations[i].codes.splice( data_json.documents_annotations[i].codes.indexOf( code_i ), 1 );
                 }
             }
             
             if (memo) {
-                output.documents_annotations[i].memo = memo;
+                data_json.documents_annotations[i].memo = memo;
             }
             if (memo=="") {
-                output.documents_annotations[i].memo = "";
+                data_json.documents_annotations[i].memo = "";
             }
             
             if (selected_tokens) {
             }
 
-            output.documents_annotations[i].annotation_update = new Date();
-            output.documents_annotations[i].annotation_user = annotation_user; 
+            data_json.documents_annotations[i].annotation_update = new Date();
+            data_json.documents_annotations[i].annotation_user = annotation_user; 
         }
     }
 
@@ -215,7 +226,7 @@ function set_documents_annotations( document_i , code_i = false , memo = false ,
             last_coded_document_i = document_i ; 
         } else { code_i = []; } 
         if (memo) {} else { memo = ""; }
-        output.documents_annotations.push({
+        data_json.documents_annotations.push({
             "document": document_i,
             "codes": code_i,
             "memo": memo,
@@ -224,15 +235,15 @@ function set_documents_annotations( document_i , code_i = false , memo = false ,
             "annotation_user": annotation_user,
         });
     } 
-    dump_output();
+    estate_monitor();
 }
 
 function get_document_codes( document_i ) {
     document_i = parseInt(document_i);
     var codes = [];
-    for (var i = 0; i < output.documents_annotations.length; i++) {
-        if (output.documents_annotations[i].document == document_i) { 
-            codes = output.documents_annotations[i].codes;
+    for (var i = 0; i < data_json.documents_annotations.length; i++) {
+        if (data_json.documents_annotations[i].document == document_i) { 
+            codes = data_json.documents_annotations[i].codes;
         }
     }
     return codes;
@@ -241,9 +252,9 @@ function get_document_codes( document_i ) {
 function get_document_memo( document_i ) {
     document_i = parseInt(document_i);
     var memo = "";
-    for (var i = 0; i < output.documents_annotations.length; i++) {
-        if (output.documents_annotations[i].document == document_i) {
-            memo = output.documents_annotations[i].memo;
+    for (var i = 0; i < data_json.documents_annotations.length; i++) {
+        if (data_json.documents_annotations[i].document == document_i) {
+            memo = data_json.documents_annotations[i].memo;
         }
     }
     return memo;
@@ -252,7 +263,7 @@ function get_document_memo( document_i ) {
 function set_fragment( document_i , fragment_text ) {
     document_i = parseInt(document_i);
     var id = idx();
-    output.fragments_annotations.push({
+    data_json.fragments_annotations.push({
         "id": id,
         "document": document_i,
         "text": fragment_text,
@@ -268,9 +279,9 @@ function set_fragment( document_i , fragment_text ) {
 
 function delete_fragment( document_i , fragment_id  ) {
     document_i = parseInt(document_i) ;
-    for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if ((output.fragments_annotations[i].document == document_i) && (output.fragments_annotations[i].id == fragment_id)) {
-            output.fragments_annotations.splice(i, 1);
+    for (var i = 0; i < data_json.fragments_annotations.length; i++) {
+        if ((data_json.fragments_annotations[i].document == document_i) && (data_json.fragments_annotations[i].id == fragment_id)) {
+            data_json.fragments_annotations.splice(i, 1);
         }
     }
 }
@@ -279,42 +290,42 @@ function set_fragments_annotations( document_i, fragment_id = false , code_i = f
 
     document_i = parseInt(document_i);
 
-    for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].id == fragment_id) {
+    for (var i = 0; i < data_json.fragments_annotations.length; i++) {
+        if (data_json.fragments_annotations[i].document == document_i && data_json.fragments_annotations[i].id == fragment_id) {
            
             if (code_i) {
                 code_i = parseInt(code_i);    
-                if ( output.fragments_annotations[i].codes.indexOf( code_i ) === -1 ) {
-                    output.fragments_annotations[i].codes.push( code_i );
+                if ( data_json.fragments_annotations[i].codes.indexOf( code_i ) === -1 ) {
+                    data_json.fragments_annotations[i].codes.push( code_i );
                     last_used_code = code_i;
                     last_coded_document_i = document_i;
                     last_coded_fragment_id = fragment_id;
                 } else {
-                    output.fragments_annotations[i].codes.splice( output.fragments_annotations[i].codes.indexOf( code_i ), 1 );
+                    data_json.fragments_annotations[i].codes.splice( data_json.fragments_annotations[i].codes.indexOf( code_i ), 1 );
                 }
             }
 
             if (memo) {
-                output.fragments_annotations[i].memo = memo;
+                data_json.fragments_annotations[i].memo = memo;
                 if (memo=="") {
-                    output.documents_annotations[i].memo = "";
+                    data_json.documents_annotations[i].memo = "";
                 }
             }
             
-            output.fragments_annotations[i].annotation_update = new Date();
-            output.fragments_annotations[i].annotation_user = annotation_user; 
+            data_json.fragments_annotations[i].annotation_update = new Date();
+            data_json.fragments_annotations[i].annotation_user = annotation_user; 
 
         }
     }
-    dump_output();
+    estate_monitor();
 
 }
 
 function get_fragments( document_i ) {
     var fragments = [];
-    for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if (output.fragments_annotations[i].document == document_i) {
-            fragments.push(output.fragments_annotations[i]);
+    for (var i = 0; i < data_json.fragments_annotations.length; i++) {
+        if (data_json.fragments_annotations[i].document == document_i) {
+            fragments.push(data_json.fragments_annotations[i]);
         }
     }
     return fragments;
@@ -324,9 +335,9 @@ function get_fragment_codes( fragment_id ) {
     
     // get output.fragments and filter by fragment_id
     var codes = [];
-    for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if (output.fragments_annotations[i].id == fragment_id) {
-            codes = output.fragments_annotations[i].codes;
+    for (var i = 0; i < data_json.fragments_annotations.length; i++) {
+        if (data_json.fragments_annotations[i].id == fragment_id) {
+            codes = data_json.fragments_annotations[i].codes;
         }
     }
     return codes;   
@@ -334,9 +345,9 @@ function get_fragment_codes( fragment_id ) {
 
 function get_fragment_memo( document_i , fragment_id ) {
     var fragment_memo = "";
-    for (var i = 0; i < output.fragments_annotations.length; i++) {
-        if (output.fragments_annotations[i].document == document_i && output.fragments_annotations[i].id == fragment_id) {
-            fragment_memo = output.fragments_annotations[i].memo;
+    for (var i = 0; i < data_json.fragments_annotations.length; i++) {
+        if (data_json.fragments_annotations[i].document == document_i && data_json.fragments_annotations[i].id == fragment_id) {
+            fragment_memo = data_json.fragments_annotations[i].memo;
         }
     }
     return fragment_memo;
@@ -346,17 +357,17 @@ function clean_selection() {
     selected_text = false;
     selected_range_start = false;    
     selected_range_end = false;
-    dump_output();
+    estate_monitor();
 }
 
 
 // ------------------------------------------------------------------------------------------------------
-// GUI drawing fns
+// data loading fns
 // ------------------------------------------------------------------------------------------------------
 
 
 function read_input_data( input ) {
-    output = input;
+    data_json = input;
 }
 
 function set_variables( show_monitor = false , annotation_user = false ) {
@@ -371,6 +382,8 @@ function set_variables( show_monitor = false , annotation_user = false ) {
 
 
 function draw_front() {
+
+    console.log(data_json);
   
     $("#posta").html('');
 
@@ -388,36 +401,37 @@ function draw_front() {
             // insert document navigation
             $("#documents_panel").append( '<div id="documents"></div>' );
             document_navigation(); 
-        
-        // insert document viewer
-        $("#container").append( '<div id="documents_viewer_panel"></div>' );
-
-            $("#documents_viewer_panel").append( '<p><strong>Document Viewer</strong></p>' );
 
             // insert document viewer
-            $("#documents_viewer_panel").append( '<div id="document_viewer">(select a document from the <strong>Document Navigation Panel</strong>)</div>' );
-
-            // annotate on documents
-            $("#documents_viewer_panel").append( '<div id="annotate_document"></div>' );
-            document_annotation_panel(); 
-
-        // insert annotation panes
-        $("#container").append( '<div id="annotate_panes"></div>' );
-
-
-            // annotate on fragments
-            $("#annotate_panes").append( '<div id="annotate_fragment"></div>' );
-            fragment_annotation_panel();
-
-        // insert codebook
-        $("#container").append( '<div id="codebook_panel"></div>' );
-        codebook_panel();
+            $("#container").append( '<div id="documents_viewer_panel"></div>' );
+            
+                $("#documents_viewer_panel").append( '<p><strong>Document Viewer</strong></p>' );
+                
+                // insert document viewer
+                $("#documents_viewer_panel").append( '<div id="document_viewer">(select a document from the <strong>Document Navigation Panel</strong>)</div>' );
+                
+                // annotate on documents
+                $("#documents_viewer_panel").append( '<div id="annotate_document"></div>' );
+                if ( current_document_i != false ) {
+                    document_annotation_panel(); 
+                }        
+    
+            // insert annotation panes
+            $("#container").append( '<div id="annotate_panes"></div>' );
+    
+    
+                // annotate on fragments
+                $("#annotate_panes").append( '<div id="annotate_fragment"></div>' );
+                fragment_annotation_panel();
+    
+            // insert codebook
+            $("#container").append( '<div id="codebook_panel"></div>' );
+            codebook_panel();
 
         // insert dump output
         $("#container").append( '<div id="dump"></div>' );
         export_and_dump_panel();
-
-        dump_output();
+        estate_monitor();
 }  
 
 function document_navigation() {
@@ -430,13 +444,19 @@ function document_navigation() {
     var documents_panel_list = $("#documents_panel_list");
 
     documents = get_documents();
-    for (var i = 0; i < documents.length; i++) {
-        if ( current_document_i && current_document_i == i ) { selected_item = "selected_item_document"; } else { selected_item = ""; }
 
-        documents_panel_list.append( '<div class="document_navigation_item ' + selected_item + ' " document_i="' + i + '">' + 
-            '<div class="document_navigation_i">' + (i+1) + '</div>' +
-            '<div class="document_navigation_snippet">' + documents[i].substring(0, 50) + '...</div>' +
-             '</div>' );
+    if ( jQuery.isEmptyObject(documents) ) {
+        documents_panel_list.append('<div id="xxx">(No documents found)</div>');
+
+    } else {
+        for (var i = 0; i < documents.length; i++) {
+            if ( current_document_i && current_document_i == i ) { selected_item = "selected_item_document"; } else { selected_item = ""; }
+    
+            documents_panel_list.append( '<div class="document_navigation_item ' + selected_item + ' " document_i="' + i + '">' + 
+                '<div class="document_navigation_i">' + (i+1) + '</div>' +
+                '<div class="document_navigation_snippet">' + documents[i].substring(0, 50) + '...</div>' +
+                 '</div>' );
+        }
     }
 }
 
@@ -489,9 +509,6 @@ function fragment_annotation_panel() {
         
         codes = get_codes();
 
-        console.log(fragments);
-        console.log(codes);
-
         for (var i = 0; i < fragments.length; i++) {    
             
             fragments_navigation.append( '<div class="fragments_item"></div>') ;
@@ -533,7 +550,7 @@ function fragment_annotation_panel() {
 function view_document_content( document_i , current_fragment = false ) {
     var document_viewer = $("#document_viewer");
     
-    text = output.documents[document_i];
+    text = data_json.documents[document_i];
     character_char = text.split('');
     character_classes = Array(character_char.length).fill('');
     character_fragments = Array(character_char.length).fill('');
@@ -583,7 +600,7 @@ function view_document_content( document_i , current_fragment = false ) {
 
 function codebook_panel() {
     target_code = false;
-    dump_output();
+    estate_monitor();
 
     var codebook_panel = $("#codebook_panel");
     codebook_panel.html('');
@@ -619,7 +636,9 @@ function codebook_panel() {
         codebook_code_list();
         
     } else {
-        codebook_panel.append('<div id="xxx">(Select a fragment or document)</div>');
+        codebook_panel.append('<p><strong>Codes book</strong></p>');
+        codebook_panel.append('<div id="xxx">(Select a fragment or document to apply / create codes)</div>');
+        codebook_panel.append('<div id="xxx">(If provided, initial codes are listed in JSON monitor below)</div>');
     }
 
 }
@@ -650,7 +669,7 @@ function codebook_code_list() {
             ' code_i="' + codes[i].i + '">' + codes[i].code_stat + '</div>' );
     }
 
-    dump_output();
+    estate_monitor();
 }
 
 function export_and_dump_panel() {
@@ -664,7 +683,7 @@ function export_and_dump_panel() {
     dump_panel.append('<p><strong>State/JSON monitor</strong>' +
         '<span id="monitor" class="export-button monitor">&nbsp;<a href="#">[Toggle state monitor and JSON preview]</a></span>' + 
         '</p>');
-    dump_panel.append('<div id="dump_output"></div>');    
+    dump_panel.append('<div id="estate_monitor"></div>');    
 
     //var dump_panel_buttons = $("#dump_buttons");
     // dump_panel_buttons.append('<div id="export" class="export-button">Export JSON without text</a></div>'); //v2
@@ -686,7 +705,7 @@ $(document).on('click', '.document_navigation_item', function() {
     view_document_content( document_i );
     document_annotation_panel(); 
     fragment_annotation_panel();
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('click', '.document_code_item', function() {
@@ -699,7 +718,7 @@ $(document).on('click', '.document_code_item', function() {
         document_annotation_panel(); 
         codebook_panel();
     }
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('click', '.document_code_item_automatic', function() {
@@ -734,7 +753,7 @@ $(document).on('click', '.document_code_item_automatic', function() {
         document_annotation_panel(); 
         fragment_annotation_panel();
     }
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('click', '.fragment_code_item_automatic', function() {
@@ -770,7 +789,7 @@ $(document).on('click', '.fragment_code_item_automatic', function() {
         document_annotation_panel(); 
         fragment_annotation_panel();
     }
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('click', '#create_fragment_button', function() {
@@ -787,7 +806,7 @@ $(document).on('click', '#create_fragment_button', function() {
             view_document_content( current_document_i , current_fragment_id );
             clean_selection();
             fragment_annotation_panel(); 
-            dump_output();
+            estate_monitor();
         }
     }
 });
@@ -802,7 +821,7 @@ $(document).on('click', '.fragment_code_item', function() {
         view_document_content( current_document_i );
         fragment_annotation_panel();
     }
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('click', '.fragment_navigation_item', function() {
@@ -816,7 +835,7 @@ $(document).on('click', '.fragment_navigation_item', function() {
 
     view_document_content( current_document_i , fragment_id = current_fragment_id );
     fragment_annotation_panel();
-    dump_output();
+    estate_monitor();
 });
 
 // update the code list by filtering the codes with text in codebook_panel_filter
@@ -834,14 +853,14 @@ $(document).on('click', '.code_sort_by', function() {
 $(document).on('change', '#document_memo', function() {
     var memo = $(this).val();
     set_documents_annotations( current_document_i, code = false, memo = memo );
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('change', '.fragment_memo', function() {
     var memo = $(this).val();
     var fragment_id = $(this).attr("fragment_id");
     set_fragments_annotations( document_i = current_document_i, fragment_id = fragment_id, code_i = false, memo = memo );
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('click', '#delete_fragment_button', function() {
@@ -851,18 +870,18 @@ $(document).on('click', '#delete_fragment_button', function() {
     current_fragment = false;
     fragment_annotation_panel();
     view_document_content( current_document_i );
-    dump_output();
+    estate_monitor();
 
 });
 
 $(document).on('click', '#monitor', function() {
     show_monitor = !show_monitor;
     if (show_monitor) {
-        $("#dump_output").show();
+        $("#estate_monitor").show();
     } else {
-        $("#dump_output").hide();
+        $("#estate_monitor").hide();
     }
-    dump_output();
+    estate_monitor();
 });
 
 $(document).on('mouseup', '#document_viewer', function() {
@@ -886,7 +905,7 @@ $(document).on('mouseup', '#document_viewer', function() {
         // console.log(container.textContent.slice(start_index, end_index));
         selected_range_end = end_index;
         selected_range_start = start_index;
-        dump_output();
+        estate_monitor();
     }
 });
 
@@ -898,7 +917,7 @@ $(document).on('click', '#export', function() {
     var hh = String(today.getHours()).padStart(2, '0');
     var min = String(today.getMinutes()).padStart(2, '0');
     var filename = 'mincoder_' + yyyy + mm + dd + hh + min + '.json';
-    exportToJsonFile(output, filename); //2do: revisar! lo llama dos veces?
+    exportToJsonFile(data_json, filename); //2do: revisar! lo llama dos veces?
 });
 
 $(document).on('click', '#import', function() { 
@@ -953,11 +972,11 @@ function handleFileSelect (e) {
     reader.addEventListener("load", function () {
         var json = JSON.parse(reader.result);
         // console.log(json);
-        output = json;
+        data_json = json;
         // document_navigation_panel();
         reset_output();
         draw_front();               
-        dump_output();
+        estate_monitor();
     });
 
 }
@@ -977,7 +996,7 @@ window.onbeforeunload = function(e) {   // trigger alert on windown close
 };
 
 function color_code( code_i ) {
-    var codes = output.codes;
+    var codes = data_json.codes;
     var color_brewer = [
         "rgba(255, 0, 0, .3)",
         "rgba(0, 255, 0, .3)",
